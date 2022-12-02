@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "adventofcodeutilities",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OffTheMark/AdventOfCodeUtilities",
+      "state" : {
+        "branch" : "master",
+        "revision" : "e14f527d9e8e0dcacea51a356edc2bf304322137"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "fddd1c00396eed152c45a46bea9f47b98e59301d",
+        "version" : "1.2.0"
+      }
+    }
+  ],
+  "version" : 2
+}
