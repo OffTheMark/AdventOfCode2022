@@ -34,6 +34,7 @@
 		3430D2672939975F00693452 /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
 		3430D26929399ACC00693452 /* Day2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day2.swift; sourceTree = "<group>"; };
 		3430D26B29399B1300693452 /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
+		3430D26C293A22E800693452 /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -90,6 +91,7 @@
 			children = (
 				3430D26929399ACC00693452 /* Day2.swift */,
 				3430D26B29399B1300693452 /* puzzle_input.txt */,
+				3430D26C293A22E800693452 /* test_input.txt */,
 			);
 			path = Day2;
 			sourceTree = "<group>";

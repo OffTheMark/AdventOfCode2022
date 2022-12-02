@@ -18,6 +18,7 @@ enum Commands {
                 version: "0.0.1",
                 subcommands: [
                     Commands.Day1.self,
+                    Commands.Day2.self,
                 ]
             )
         }
