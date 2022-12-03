@@ -36,19 +36,55 @@ extension Commands {
         func run() throws {
             let input: [Rucksack] = try readLines().map({ Rucksack(items: Array($0)) })
             
-            let sumOfPriorities = part1(input: input)
+            let sumOfPrioritiesForItemsInBothCompartments = part1(input: input)
             printTitle("Part 1", level: .title1)
-            print("Sum of priorities:", sumOfPriorities, terminator: "\n\n")
+            print(
+                "Sum of priorities for items in both compartements:",
+                sumOfPrioritiesForItemsInBothCompartments,
+                terminator: "\n\n"
+            )
+            
+            let sumOfPrioritiesForCommonItemsInGroups = part2(input: input)
+            printTitle("Title 2", level: .title1)
+            print(
+                "Sum of priorities for common items in groups:",
+                sumOfPrioritiesForCommonItemsInGroups,
+                terminator: "\n\n"
+            )
         }
         
         func part1(input: [Rucksack]) -> Int {
             input.reduce(into: 0, { result, rucksack in
                 let itemsAppearingInBothHalves = Set(rucksack.firstHalf)
                     .intersection(Set(rucksack.secondHalf))
-                assert(itemsAppearingInBothHalves.count == 1)
+                assert(itemsAppearingInBothHalves.count == 1, "count == 1")
                 
                 let priority = Self.prioritiesByItem[itemsAppearingInBothHalves.first!, default: 0]
                 result += priority
+            })
+        }
+        
+        func part2(input: [Rucksack]) -> Int {
+            assert(input.count.isMultiple(of: 3), "isMultiple(of: 3)")
+            
+            return sequence(
+                first: 0,
+                next: { current in
+                    let next = current + 3
+                    if next >= input.endIndex {
+                        return nil
+                    }
+                    return next
+                }
+            )
+            .reduce(into: 0, { result, startIndex in
+                let itemsAppearingInAllRucksacksOfGroup = Set(input[startIndex].items)
+                    .intersection(Set(input[startIndex.advanced(by: 1)].items))
+                    .intersection(Set(input[startIndex.advanced(by: 2)].items))
+                
+                assert(itemsAppearingInAllRucksacksOfGroup.count == 1, "count == 1")
+                
+                result += Self.prioritiesByItem[itemsAppearingInAllRucksacksOfGroup.first!, default: 0]
             })
         }
     }
