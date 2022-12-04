@@ -20,6 +20,7 @@ enum Commands {
                     Commands.Day1.self,
                     Commands.Day2.self,
                     Commands.Day3.self,
+                    Commands.Day4.self,
                 ]
             )
         }
