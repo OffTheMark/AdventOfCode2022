@@ -22,7 +22,7 @@ extension Commands {
         var puzzleInputPath: String
         
         func run() throws {
-            let sectionPairs: [(ClosedRange<Int>, ClosedRange<Int>)] = try readLines()
+            let sectionPairs: [SectionAssignmentPair] = try readLines()
                 .compactMap({ line in
                     let parts = line.components(separatedBy: ",")
                     assert(parts.count == 2, "count == 2")
@@ -46,19 +46,21 @@ extension Commands {
             print("Number of overlapping assignment pairs:", numberOfOverlappingAssignmentPairs)
         }
         
-        func part1(input: [(ClosedRange<Int>, ClosedRange<Int>)]) -> Int {
+        private func part1(input: [SectionAssignmentPair]) -> Int {
             input.count(where: { left, right in
                 left.contains(right) || right.contains(left)
             })
         }
         
-        func part2(input: [(ClosedRange<Int>, ClosedRange<Int>)]) -> Int {
+        private func part2(input: [SectionAssignmentPair]) -> Int {
             input.count(where: { left, right in
                 left.overlaps(right)
             })
         }
     }
 }
+
+private typealias SectionAssignmentPair = (ClosedRange<Int>, ClosedRange<Int>)
 
 extension ClosedRange {
     func contains(_ other: ClosedRange<Bound>) -> Bool {
