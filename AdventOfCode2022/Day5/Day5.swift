@@ -24,12 +24,19 @@ extension Commands {
         func run() throws {
             let (stacks, moves) = try parse(input: try readFile())
             
-            let cratesOnTopOfEachStack = part1(stacks: stacks, moves: moves)
+            let cratesOnTopOfEachStackWithCrateMover9000 = part1(stacks: stacks, moves: moves)
             printTitle("Part 1", level: .title1)
             print(
-                "After the rearrangement procedure completes, what crate ends up on top of each stack?",
-                cratesOnTopOfEachStack,
+                "After the rearrangement procedure completes, what crate ends up on top of each stack with CrateMover 9000?",
+                cratesOnTopOfEachStackWithCrateMover9000,
                 terminator: "\n\n"
+            )
+            
+            let cratesOnTopOfEachStackWithCrateMover9001 = part2(stacks: stacks, moves: moves)
+            printTitle("Part 2", level: .title1)
+            print(
+                "After the rearrangement procedure completes, what crate ends up on top of each stack with CrateMover 9001?",
+                cratesOnTopOfEachStackWithCrateMover9001
             )
         }
         
@@ -116,9 +123,25 @@ extension Commands {
                 }
             }
             
-            return String(stacks.keys.sorted().compactMap({
-                stacks[$0]?.last
-            }))
+            return String(stacks.keys.sorted().compactMap({ stacks[$0]?.last }))
+        }
+        
+        func part2(stacks: Stacks, moves: [Move]) -> String {
+            let result = moves.reduce(into: stacks, { result, move in
+                var crates = [Character]()
+                
+                for _ in 0 ..< move.number {
+                    guard let crate = result[move.start]?.removeLast() else {
+                        continue
+                    }
+                    
+                    crates.append(crate)
+                }
+                
+                result[move.end]?.append(contentsOf: crates.reversed())
+            })
+            
+            return String(result.keys.sorted().compactMap({ result[$0]?.last }))
         }
     }
     
@@ -130,5 +153,3 @@ extension Commands {
     
     typealias Stacks = [Int: [Character]]
 }
-
-
