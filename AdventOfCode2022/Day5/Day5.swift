@@ -111,34 +111,27 @@ extension Commands {
         }
         
         func part1(stacks: Stacks, moves: [Move]) -> String {
-            var stacks = stacks
+            let result = moves.reduce(into: stacks, { result, move in
+                let crates: [Character] = (0 ..< move.number)
+                    .compactMap({ _ in
+                        result[move.start]?.removeLast()
+                    })
+                
+                result[move.end]?.append(contentsOf: crates)
+            })
             
-            for move in moves {
-                for _ in 0 ..< move.number {
-                    guard let crate = stacks[move.start]?.removeLast() else {
-                        continue
-                    }
-                    
-                    stacks[move.end, default: []].append(crate)
-                }
-            }
-            
-            return String(stacks.keys.sorted().compactMap({ stacks[$0]?.last }))
+            return String(result.keys.sorted().compactMap({ result[$0]?.last }))
         }
         
         func part2(stacks: Stacks, moves: [Move]) -> String {
             let result = moves.reduce(into: stacks, { result, move in
-                var crates = [Character]()
+                let crates: [Character] = (0 ..< move.number)
+                    .compactMap({ _ in
+                        result[move.start]?.removeLast()
+                    })
+                    .reversed()
                 
-                for _ in 0 ..< move.number {
-                    guard let crate = result[move.start]?.removeLast() else {
-                        continue
-                    }
-                    
-                    crates.append(crate)
-                }
-                
-                result[move.end]?.append(contentsOf: crates.reversed())
+                result[move.end]?.append(contentsOf: crates)
             })
             
             return String(result.keys.sorted().compactMap({ result[$0]?.last }))
