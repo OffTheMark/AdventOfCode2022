@@ -37,8 +37,7 @@ extension Commands {
             printTitle("Part 2", level: .title1)
             print(
                 "How many characters need to be processed before the first start-of-message marker is detected?",
-                numberOfCharactersToStartOfMessageMarker,
-                terminator: "\n\n"
+                numberOfCharactersToStartOfMessageMarker
             )
         }
         
