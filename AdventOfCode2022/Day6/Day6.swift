@@ -8,6 +8,7 @@
 import Foundation
 import ArgumentParser
 import AdventOfCodeUtilities
+import Algorithms
 
 extension Commands {
     struct Day6: DayCommand {
@@ -42,29 +43,21 @@ extension Commands {
         }
         
         func part1(input: String) -> Int {
-            let startOfPacketMarker = input.firstRange(withNumberOfDistinctCharacters: 4)!
+            let startOfPacketMarker = input.windows(ofCount: 4)
+                .first(where: { substring in
+                    Set(substring).count == 4
+                })!
             
             return startOfPacketMarker.distance(from: input.startIndex, to: startOfPacketMarker.endIndex)
         }
         
         func part2(input: String) -> Int {
-            let startOfMessageMarker = input.firstRange(withNumberOfDistinctCharacters: 14)!
+            let startOfMessageMarker = input.windows(ofCount: 14)
+                .first(where: { substring in
+                    Set(substring).count == 14
+                })!
             
             return startOfMessageMarker.distance(from: input.startIndex, to: startOfMessageMarker.endIndex)
         }
-    }
-}
-
-extension String {
-    func firstRange(withNumberOfDistinctCharacters numberOfDistinctCharacters: Int) -> Substring? {
-        indices.dropLast(numberOfDistinctCharacters).lazy
-            .map({ startIndex in
-                let endIndex = index(startIndex, offsetBy: numberOfDistinctCharacters)
-                let range = startIndex ..< endIndex
-                return self[range]
-            })
-            .first(where: { substring in
-                Set(substring).count == numberOfDistinctCharacters
-            })
     }
 }
