@@ -8,6 +8,7 @@
 import Foundation
 import ArgumentParser
 import AdventOfCodeUtilities
+import Algorithms
 
 extension Commands {
     struct Day5: DayCommand {
@@ -66,19 +67,17 @@ extension Commands {
                 stacks[$0] = []
             })
             
-            for line in lines.reversed() {
-                for identifier in stackIdentifiers {
-                    let column = column(forStackIdentifier: identifier)
-                    guard column <= line.count else {
-                        continue
-                    }
-                    
-                    let index = line.index(line.startIndex, offsetBy: column)
-                    let crate = line[index]
-                    
-                    if crate != " " {
-                        stacks[identifier, default: []].append(crate)
-                    }
+            for (line, identifier) in product(lines.reversed(), stackIdentifiers) {
+                let column = column(forStackIdentifier: identifier)
+                guard column <= line.count else {
+                    continue
+                }
+                
+                let index = line.index(line.startIndex, offsetBy: column)
+                let crate = line[index]
+                
+                if crate != " " {
+                    stacks[identifier, default: []].append(crate)
                 }
             }
             
