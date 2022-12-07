@@ -43,8 +43,6 @@ extension Commands {
         
         private func parse(input: [String]) -> TreeNode<FileNode> {
             let root = TreeNode<FileNode>(value: .directory(name: "/"))
-            var nodesByDirectory = [String: TreeNode<FileNode>]()
-            nodesByDirectory[root.path] = root
             
             var currentNode = root
             for line in input {
@@ -85,14 +83,6 @@ extension Commands {
                 
                 let node = TreeNode<FileNode>(value: fileNode)
                 currentNode.addChild(node)
-                
-                switch fileNode {
-                case .file:
-                    break
-                    
-                case .directory:
-                    nodesByDirectory[node.path] = node
-                }
             }
             
             return root
