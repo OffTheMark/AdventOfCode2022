@@ -26,11 +26,18 @@ extension Commands {
             let tree = parse(input: try readLines())
             
             let sumOfDirectorySizes = part1(tree: tree)
-            printTitle("Title 1", level: .title1)
+            printTitle("Part 1", level: .title1)
             print(
                 "What is the sum of the total sizes of directories with a total size of at most 100000?",
                 sumOfDirectorySizes,
                 terminator: "\n\n"
+            )
+            
+            let sizeOfSmallestDirectoryToDelete = part2(tree: tree)
+            printTitle("Part 2", level: .title1)
+            print(
+                "What is the total size of the smallest directory that, if deleted, would free up enough space on the filesystem to run the update?",
+                sizeOfSmallestDirectoryToDelete
             )
         }
         
@@ -92,27 +99,7 @@ extension Commands {
         }
         
         func part1(tree: TreeNode<FileNode>) -> Int {
-            var sizeByDirectory = [String: Int]()
-            
-            func size(of node: TreeNode<FileNode>) -> Int {
-                switch node.value {
-                case .directory:
-                    if let size = sizeByDirectory[node.path] {
-                        return size
-                    }
-                    
-                    let size = node.children.reduce(into: 0, { result, child in
-                        result += size(of: child)
-                    })
-                    sizeByDirectory[node.path] = size
-                    return size
-                    
-                case .file(let size, _):
-                    return size
-                }
-            }
-            
-            tree.recursiveForEach({ _ = size(of: $0) })
+            let sizeByDirectory = tree.sizeByDirectory()
             
             let directoriesWithSizeAtMost100000 = sizeByDirectory.filter({ _, size in
                 size <= 100_000
@@ -121,6 +108,22 @@ extension Commands {
                 let (_, size) = pair
                 result += size
             })
+        }
+        
+        func part2(tree: TreeNode<FileNode>) -> Int {
+            let availableDiskSpace = 70_000_000
+            let unusedSpaceForUpdate = 30_000_000
+            
+            let sizeByDirectory = tree.sizeByDirectory()
+            let totalUsedDiskSpace = sizeByDirectory["/", default: 0]
+            let unusedDiskSpace = availableDiskSpace - totalUsedDiskSpace
+            let spaceToFreeUp = unusedSpaceForUpdate - unusedDiskSpace
+            
+            return sizeByDirectory.values
+                .filter({ size in
+                    size >= spaceToFreeUp
+                })
+                .min()!
         }
         
         enum FileNode: Equatable {
@@ -189,8 +192,37 @@ extension TreeNode where Element == Commands.Day7.FileNode {
         var parts = Array(ancestors.reversed())
         parts.append(self)
         
+        let firstPart = parts.removeFirst()
         return parts
-            .map({ $0.value.name })
-            .joined(separator: "/")
+            .reduce(URL(fileURLWithPath: firstPart.value.name), { result, part in
+                result.appendingPathComponent(part.value.name)
+            })
+            .path
+    }
+    
+    func sizeByDirectory() -> [String: Int] {
+        var sizeByDirectory = [String: Int]()
+        
+        func size(of node: TreeNode<Element>) -> Int {
+            switch node.value {
+            case .directory:
+                if let size = sizeByDirectory[node.path] {
+                    return size
+                }
+                
+                let size = node.children.reduce(into: 0, { result, child in
+                    result += size(of: child)
+                })
+                sizeByDirectory[node.path] = size
+                return size
+                
+            case .file(let size, _):
+                return size
+            }
+        }
+        
+        _ = size(of: self)
+        
+        return sizeByDirectory
     }
 }
