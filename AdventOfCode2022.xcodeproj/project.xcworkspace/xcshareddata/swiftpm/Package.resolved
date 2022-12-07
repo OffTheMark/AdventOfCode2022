@@ -35,6 +35,15 @@
         "revision" : "0a5bc04095a675662cf24757cc0640aa2204253b",
         "version" : "1.0.2"
       }
+    },
+    {
+      "identity" : "swiftdatastructures",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OffTheMark/SwiftDataStructures.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "d1e08311054ebc75b1432f2aa55e96e37a5682ab"
+      }
     }
   ],
   "version" : 2

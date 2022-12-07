@@ -18,6 +18,7 @@
 		34F80D3F293F67D900DB9C0D /* Day6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D3E293F67D900DB9C0D /* Day6.swift */; };
 		34F80D44293F6DFA00DB9C0D /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 34F80D43293F6DFA00DB9C0D /* Algorithms */; };
 		34F80D4729401FEB00DB9C0D /* Day7.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D4629401FEB00DB9C0D /* Day7.swift */; };
+		34F80D4C2940B97B00DB9C0D /* SwiftDataStructures in Frameworks */ = {isa = PBXBuildFile; productRef = 34F80D4B2940B97B00DB9C0D /* SwiftDataStructures */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -65,6 +66,7 @@
 			files = (
 				34F80D44293F6DFA00DB9C0D /* Algorithms in Frameworks */,
 				3430D25F293994D800693452 /* ArgumentParser in Frameworks */,
+				34F80D4C2940B97B00DB9C0D /* SwiftDataStructures in Frameworks */,
 				3430D264293995FF00693452 /* AdventOfCodeUtilities in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -193,6 +195,7 @@
 				3430D25E293994D800693452 /* ArgumentParser */,
 				3430D263293995FF00693452 /* AdventOfCodeUtilities */,
 				34F80D43293F6DFA00DB9C0D /* Algorithms */,
+				34F80D4B2940B97B00DB9C0D /* SwiftDataStructures */,
 			);
 			productName = AdventOfCode2022;
 			productReference = 3430D2502939942600693452 /* AdventOfCode2022 */;
@@ -226,6 +229,7 @@
 				3430D25D293994D800693452 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				3430D262293995FE00693452 /* XCRemoteSwiftPackageReference "AdventOfCodeUtilities" */,
 				34F80D42293F6DFA00DB9C0D /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				34F80D4A2940B97B00DB9C0D /* XCRemoteSwiftPackageReference "SwiftDataStructures" */,
 			);
 			productRefGroup = 3430D2512939942600693452 /* Products */;
 			projectDirPath = "";
@@ -434,6 +438,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		34F80D4A2940B97B00DB9C0D /* XCRemoteSwiftPackageReference "SwiftDataStructures" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OffTheMark/SwiftDataStructures.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -451,6 +463,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 34F80D42293F6DFA00DB9C0D /* XCRemoteSwiftPackageReference "swift-algorithms" */;
 			productName = Algorithms;
+		};
+		34F80D4B2940B97B00DB9C0D /* SwiftDataStructures */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34F80D4A2940B97B00DB9C0D /* XCRemoteSwiftPackageReference "SwiftDataStructures" */;
+			productName = SwiftDataStructures;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
