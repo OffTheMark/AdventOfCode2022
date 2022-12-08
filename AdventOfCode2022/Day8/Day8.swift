@@ -32,6 +32,13 @@ extension Commands {
                 numberOfTreesVisibleFromOutsideTheGrid,
                 terminator: "\n\n"
             )
+            
+            let highestScenicScore = part2(grid: grid)
+            printTitle("Part 2", level: .title1)
+            print(
+                "What is the highest scenic score possible for any tree?",
+                highestScenicScore
+            )
         }
         
         func part1(grid: Grid) -> Int {
@@ -42,7 +49,7 @@ extension Commands {
                 for column in grid.columns {
                     let point = Point2D(x: column, y: row)
                     
-                    let height = grid.itemsByPoint[point, default: 0]
+                    let height = grid.height(of: point)
                     let isHighestEncounteredTree: Bool
                     if let greatestEncounteredHeight {
                         isHighestEncounteredTree = height > greatestEncounteredHeight
@@ -62,7 +69,7 @@ extension Commands {
                 for column in grid.columns.reversed() {
                     let point = Point2D(x: column, y: row)
                     
-                    let height = grid.itemsByPoint[point, default: 0]
+                    let height = grid.height(of: point)
                     let isHighestEncounteredTree: Bool
                     if let greatestEncounteredHeight {
                         isHighestEncounteredTree = height > greatestEncounteredHeight
@@ -83,7 +90,7 @@ extension Commands {
                 for row in grid.rows {
                     let point = Point2D(x: column, y: row)
                     
-                    let height = grid.itemsByPoint[point, default: 0]
+                    let height = grid.height(of: point)
                     let isHighestEncounteredTree: Bool
                     if let greatestEncounteredHeight {
                         isHighestEncounteredTree = height > greatestEncounteredHeight
@@ -104,7 +111,7 @@ extension Commands {
                 for row in grid.rows.reversed() {
                     let point = Point2D(x: column, y: row)
                     
-                    let height = grid.itemsByPoint[point, default: 0]
+                    let height = grid.height(of: point)
                     let isHighestEncounteredTree: Bool
                     if let greatestEncounteredHeight {
                         isHighestEncounteredTree = height > greatestEncounteredHeight
@@ -122,11 +129,16 @@ extension Commands {
             
             return visibleTrees.count
         }
+        
+        func part2(grid: Grid) -> Int {
+            let scenicScoresByPoint = grid.scenicScoresByPoint()
+            return scenicScoresByPoint.values.max()!
+        }
     }
     
     struct Grid {
         var size: Size
-        var itemsByPoint: [Point2D: Int]
+        var heightsByPoint: [Point2D: Int]
         
         var columns: Range<Int> { 0 ..< size.width }
         
@@ -134,7 +146,15 @@ extension Commands {
         
         init(size: Size, itemsByPoint: [Point2D : Int]) {
             self.size = size
-            self.itemsByPoint = itemsByPoint
+            self.heightsByPoint = itemsByPoint
+        }
+        
+        func contains(_ point: Point2D) -> Bool {
+            heightsByPoint[point] != nil
+        }
+        
+        func height(of point: Point2D) -> Int {
+            heightsByPoint[point, default: 0]
         }
         
         init(lines: [String]) {
@@ -154,7 +174,35 @@ extension Commands {
             }
             
             self.size = size
-            self.itemsByPoint = itemsByPoint
+            self.heightsByPoint = itemsByPoint
+        }
+        
+        func scenicScoresByPoint() -> [Point2D: Int] {
+            heightsByPoint.keys.reduce(into: [:], { result, point in
+                result[point] = scenicScore(of: point)
+            })
+        }
+        
+        func scenicScore(of point: Point2D) -> Int {
+            let directions: [Translation2D] = [.up, .down, .left, .right]
+            var viewingDistanceByDirection = [Translation2D: Int]()
+            
+            for direction in directions {
+                var currentPoint = point
+                currentPoint.apply(direction)
+                var viewingDistance = 0
+                var hasHitTreeHigherOrEqual = false
+                
+                while contains(currentPoint), !hasHitTreeHigherOrEqual {
+                    viewingDistance += 1
+                    hasHitTreeHigherOrEqual = height(of: currentPoint) >= height(of: point)
+                    currentPoint.apply(direction)
+                }
+                
+                viewingDistanceByDirection[direction] = viewingDistance
+            }
+            
+            return viewingDistanceByDirection.values.reduce(1, *)
         }
     }
 }
@@ -162,6 +210,21 @@ extension Commands {
 struct Point2D: Hashable {
     var x: Int
     var y: Int
+    
+    mutating func apply(_ translation: Translation2D) {
+        x += translation.deltaX
+        y += translation.deltaY
+    }
+}
+
+struct Translation2D: Hashable {
+    var deltaX: Int
+    var deltaY: Int
+    
+    static let up = Self(deltaX: 0, deltaY: -1)
+    static let down = Self(deltaX: 0, deltaY: 1)
+    static let left = Self(deltaX: -1, deltaY: 0)
+    static let right = Self(deltaX: 1, deltaY: 0)
 }
 
 struct Size {
