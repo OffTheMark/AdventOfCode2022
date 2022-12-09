@@ -135,13 +135,13 @@ extension Commands {
             
             return String(result.keys.sorted().compactMap({ result[$0]?.last }))
         }
+        
+        struct Move {
+            let number: Int
+            let start: Int
+            let end: Int
+        }
+        
+        typealias Stacks = [Int: [Character]]
     }
-    
-    struct Move {
-        let number: Int
-        let start: Int
-        let end: Int
-    }
-    
-    typealias Stacks = [Int: [Character]]
 }

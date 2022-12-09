@@ -20,6 +20,7 @@
 		34F80D4729401FEB00DB9C0D /* Day7.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D4629401FEB00DB9C0D /* Day7.swift */; };
 		34F80D4C2940B97B00DB9C0D /* SwiftDataStructures in Frameworks */ = {isa = PBXBuildFile; productRef = 34F80D4B2940B97B00DB9C0D /* SwiftDataStructures */; };
 		34F80D4F29420A8200DB9C0D /* Day8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D4E29420A8200DB9C0D /* Day8.swift */; };
+		34F80D5429435E6100DB9C0D /* Day9.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D5329435E6100DB9C0D /* Day9.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -61,6 +62,9 @@
 		34F80D4E29420A8200DB9C0D /* Day8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day8.swift; sourceTree = "<group>"; };
 		34F80D5029420A8C00DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
 		34F80D5129420A9700DB9C0D /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
+		34F80D5329435E6100DB9C0D /* Day9.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day9.swift; sourceTree = "<group>"; };
+		34F80D5529435E6C00DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
+		34F80D56294364B900DB9C0D /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,7 @@
 				34F80D3D293F67CB00DB9C0D /* Day6 */,
 				34F80D4529401FDB00DB9C0D /* Day7 */,
 				34F80D4D29420A7400DB9C0D /* Day8 */,
+				34F80D5229435E5400DB9C0D /* Day9 */,
 				3430D2532939942600693452 /* main.swift */,
 			);
 			path = AdventOfCode2022;
@@ -190,6 +195,16 @@
 			path = Day8;
 			sourceTree = "<group>";
 		};
+		34F80D5229435E5400DB9C0D /* Day9 */ = {
+			isa = PBXGroup;
+			children = (
+				34F80D5329435E6100DB9C0D /* Day9.swift */,
+				34F80D5529435E6C00DB9C0D /* test_input.txt */,
+				34F80D56294364B900DB9C0D /* puzzle_input.txt */,
+			);
+			path = Day9;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -266,6 +281,7 @@
 				3430D26A29399ACC00693452 /* Day2.swift in Sources */,
 				3430D26F293B9ADA00693452 /* Day3.swift in Sources */,
 				345C8ABC293E17620050A100 /* Day5.swift in Sources */,
+				34F80D5429435E6100DB9C0D /* Day9.swift in Sources */,
 				34F80D3F293F67D900DB9C0D /* Day6.swift in Sources */,
 				34F80D4F29420A8200DB9C0D /* Day8.swift in Sources */,
 				3430D2542939942600693452 /* main.swift in Sources */,

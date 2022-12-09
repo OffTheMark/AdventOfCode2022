@@ -211,6 +211,8 @@ struct Point2D: Hashable {
     var x: Int
     var y: Int
     
+    static let zero = Self(x: 0, y: 0)
+    
     mutating func apply(_ translation: Translation2D) {
         x += translation.deltaX
         y += translation.deltaY
