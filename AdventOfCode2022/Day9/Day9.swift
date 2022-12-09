@@ -58,13 +58,16 @@ extension Commands {
                 for _ in 0 ..< move.distance {
                     knotPositions[knotPositions.startIndex].apply(move.translation)
                     
-                    for index in knotPositions.indices.dropFirst() {
-                        if knotPositions[index].touches(knotPositions[index - 1]) {
+                    for window in knotPositions.indices.windows(ofCount: 2) {
+                        let currentKnot = window.last!
+                        let previousKnot = window.first!
+                        
+                        if knotPositions[currentKnot].touches(knotPositions[previousKnot]) {
                             continue
                         }
                         
-                        let translationToPreviousKnot = knotPositions[index].translation(to: knotPositions[index - 1])
-                        knotPositions[index].apply(translationToPreviousKnot.normalized)
+                        let translationToPreviousKnot = knotPositions[currentKnot].translation(to: knotPositions[previousKnot])
+                        knotPositions[currentKnot].apply(translationToPreviousKnot.normalized)
                     }
                     
                     visitedTailPositions.insert(knotPositions[numberOfKnots - 1])
