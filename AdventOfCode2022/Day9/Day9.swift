@@ -66,7 +66,9 @@ extension Commands {
                             continue
                         }
                         
-                        let translationToPreviousKnot = knotPositions[currentKnot].translation(to: knotPositions[previousKnot])
+                        let translationToPreviousKnot = knotPositions[currentKnot].translation(
+                            to: knotPositions[previousKnot]
+                        )
                         knotPositions[currentKnot].apply(translationToPreviousKnot.normalized)
                     }
                     
@@ -122,22 +124,7 @@ fileprivate extension Point2D {
     }
 }
 
-extension Translation2D {
-    static func *= (lhs: inout Translation2D, rhs: Int) {
-        lhs.deltaX *= rhs
-        lhs.deltaY *= rhs
-    }
-    
-    static func * (lhs: Translation2D, rhs: Int) -> Translation2D {
-        var result = lhs
-        result *= rhs
-        return lhs
-    }
-    
-    var isDiagonal: Bool {
-        deltaX != 0 || deltaX != 0
-    }
-    
+fileprivate extension Translation2D {
     var normalized: Translation2D {
         func normalize(_ delta: Int) -> Int {
             guard delta != 0 else {
