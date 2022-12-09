@@ -63,8 +63,9 @@
 		34F80D5029420A8C00DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
 		34F80D5129420A9700DB9C0D /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
 		34F80D5329435E6100DB9C0D /* Day9.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day9.swift; sourceTree = "<group>"; };
-		34F80D5529435E6C00DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
+		34F80D5529435E6C00DB9C0D /* test_input_1.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input_1.txt; sourceTree = "<group>"; };
 		34F80D56294364B900DB9C0D /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
+		34F80D5729436B4800DB9C0D /* test_input_2.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input_2.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -199,7 +200,8 @@
 			isa = PBXGroup;
 			children = (
 				34F80D5329435E6100DB9C0D /* Day9.swift */,
-				34F80D5529435E6C00DB9C0D /* test_input.txt */,
+				34F80D5529435E6C00DB9C0D /* test_input_1.txt */,
+				34F80D5729436B4800DB9C0D /* test_input_2.txt */,
 				34F80D56294364B900DB9C0D /* puzzle_input.txt */,
 			);
 			path = Day9;

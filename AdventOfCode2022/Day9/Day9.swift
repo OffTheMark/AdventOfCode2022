@@ -25,36 +25,53 @@ extension Commands {
         func run() throws {
             let moves = try readLines().compactMap(Move.init)
             
-            let numberOfPositionsVisitedByTail = part1(moves: moves)
+            let numberOfPositionsVisitedByTailOfRopeWith2Knots = part1(moves: moves)
             printTitle("Part 1", level: .title1)
             print(
-                "How many positions does the tail of the rope visit at least once?",
-                numberOfPositionsVisitedByTail,
+                "How many positions does the tail of the rope with two knots visit at least once?",
+                numberOfPositionsVisitedByTailOfRopeWith2Knots,
                 terminator: "\n\n"
+            )
+            
+            let numberOfPositionsVisitedByTailOfRopeWith10Knots = part2(moves: moves)
+            printTitle("Part 2", level: .title1)
+            print(
+                "How many positions does the tail of the rope with ten knots visit at least once?",
+                numberOfPositionsVisitedByTailOfRopeWith10Knots
             )
         }
         
         func part1(moves: [Move]) -> Int {
-            var headPosition: Point2D = .zero
-            var tailPosition = headPosition
-            
-            var visitedPositions: Set = [tailPosition]
+            solve(numberOfKnots: 2, moves: moves)
+        }
+        
+        func part2(moves: [Move]) -> Int {
+            solve(numberOfKnots: 10, moves: moves)
+        }
+        
+        func solve(numberOfKnots: Int, moves: [Move]) -> Int {
+            assert(numberOfKnots >= 1, "numberOfKnots >= 1")
+            var knotPositions: [Point2D] = .init(repeating: .zero, count: numberOfKnots)
+            var visitedTailPositions: Set = [knotPositions[numberOfKnots - 1]]
             
             for move in moves {
                 for _ in 0 ..< move.distance {
-                    headPosition.apply(move.translation)
+                    knotPositions[knotPositions.startIndex].apply(move.translation)
                     
-                    if !tailPosition.touches(headPosition) {
-                        let translationToHead = tailPosition.translation(to: headPosition)
+                    for index in knotPositions.indices.dropFirst() {
+                        if knotPositions[index].touches(knotPositions[index - 1]) {
+                            continue
+                        }
                         
-                        tailPosition.apply(translationToHead.normalized)
+                        let translationToPreviousKnot = knotPositions[index].translation(to: knotPositions[index - 1])
+                        knotPositions[index].apply(translationToPreviousKnot.normalized)
                     }
                     
-                    visitedPositions.insert(tailPosition)
+                    visitedTailPositions.insert(knotPositions[numberOfKnots - 1])
                 }
             }
             
-            return visitedPositions.count
+            return visitedTailPositions.count
         }
         
         struct Move {
@@ -119,22 +136,14 @@ extension Translation2D {
     }
     
     var normalized: Translation2D {
-        let newDeltaX: Int
-        if deltaX == 0 {
-            newDeltaX = deltaX
-        }
-        else {
-            newDeltaX = deltaX / abs(deltaX)
-        }
-        
-        let newDeltaY: Int
-        if deltaY == 0 {
-            newDeltaY = deltaY
-        }
-        else {
-            newDeltaY = deltaY / abs(deltaY)
+        func normalize(_ delta: Int) -> Int {
+            guard delta != 0 else {
+                return delta
+            }
+            
+            return delta / abs(delta)
         }
         
-        return Translation2D(deltaX: newDeltaX, deltaY: newDeltaY)
+        return Translation2D(deltaX: normalize(deltaX), deltaY: normalize(deltaY))
     }
 }
