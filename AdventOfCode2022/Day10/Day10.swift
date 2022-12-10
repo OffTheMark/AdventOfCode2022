@@ -8,6 +8,7 @@
 import Foundation
 import ArgumentParser
 import AdventOfCodeUtilities
+import Algorithms
 
 extension Commands {
     struct Day10: DayCommand {
@@ -30,6 +31,14 @@ extension Commands {
                 "What is the sum of these signal strengths during the 20th, 60th, 100th, 140th, 180th and 220th cycle?",
                 sumOfSignalStrengths,
                 terminator: "\n\n"
+            )
+            
+            let displayImage = part2(commands: commands)
+            printTitle("Part 2", level: .title2)
+            print(
+                "What eight capital letters appear on your CRT?",
+                displayImage,
+                separator: "\n"
             )
         }
         
@@ -54,8 +63,8 @@ extension Commands {
                 
                 currentCycle += command.cyclesToComplete
                 
-                let range = cycleAtStart ..< currentCycle
-                if let cycle = cyclesToObserve.first(where: { range.contains($0) }) {
+                let cycles = cycleAtStart ..< currentCycle
+                if let cycle = cyclesToObserve.first(where: { cycles.contains($0) }) {
                     let signalStrength = (cycle + 1) * valueAtStart
                     signalStrengths.append(signalStrength)
                 }
@@ -63,35 +72,71 @@ extension Commands {
             
             return signalStrengths.reduce(0, +)
         }
-    }
-    
-    enum Command {
-        case noOperation
-        case addX(value: Int)
         
-        init?(rawValue: String) {
-            if rawValue == "noop" {
-                self = .noOperation
-                return
+        func part2(commands: [Command]) -> String {
+            var pixels = Array(repeating: ".", count: 40 * 6)
+            var sprite = Sprite(x: 1)
+            var currentCycle = 0
+            
+            for command in commands {
+                let cycleAtStart = currentCycle
+                let spriteAtStart = sprite
+                
+                switch command {
+                case .addX(let value):
+                    sprite.x += value
+                    
+                case .noOperation:
+                    break
+                }
+                
+                currentCycle += command.cyclesToComplete
+                
+                let cycles = cycleAtStart ..< currentCycle
+                let pixelsToDraw = cycles.filter({ cycle in
+                    let horizontalPosition = cycle % 40
+                    return spriteAtStart.pixels.contains(horizontalPosition)
+                })
+                pixelsToDraw.forEach({ pixels[$0] = "#" })
             }
             
-            let components = rawValue.components(separatedBy: " ")
-            if components.count == 2, let value = Int(components[1]) {
-                self = .addX(value: value)
-                return
-            }
-            
-            return nil
+            return pixels.chunks(ofCount: 40).map({ $0.joined() }).joined(separator: "\n")
         }
         
-        var cyclesToComplete: Int {
-            switch self {
-            case .noOperation:
-                return 1
+        enum Command {
+            case noOperation
+            case addX(value: Int)
+            
+            init?(rawValue: String) {
+                if rawValue == "noop" {
+                    self = .noOperation
+                    return
+                }
                 
-            case .addX:
-                return 2
+                let components = rawValue.components(separatedBy: " ")
+                if components.count == 2, let value = Int(components[1]) {
+                    self = .addX(value: value)
+                    return
+                }
+                
+                return nil
             }
+            
+            var cyclesToComplete: Int {
+                switch self {
+                case .noOperation:
+                    return 1
+                    
+                case .addX:
+                    return 2
+                }
+            }
+        }
+        
+        struct Sprite {
+            var x: Int
+            
+            var pixels: ClosedRange<Int> { (x - 1) ... (x + 1)}
         }
     }
 }
