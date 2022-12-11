@@ -30,11 +30,19 @@ extension Commands {
                 return Monkey(lines: lines)
             })
             
-            let levelOfMonkeyBusiness = part1(monkeys: monkeys)
+            let levelOfMonkeyBusinessAfter20Rounds = part1(monkeys: monkeys)
             printTitle("Part 1", level: .title1)
             print(
                 "What is the level of monkey business after 20 rounds of stuff-slinging simian shenanigans?",
-                levelOfMonkeyBusiness,
+                levelOfMonkeyBusinessAfter20Rounds,
+                terminator: "\n\n"
+            )
+            
+            let levelOfMonkeyBusinessAfter10000Rounds = part2(monkeys: monkeys)
+            printTitle("Part 2", level: .title1)
+            print(
+                "Worry levels are no longer divided by three after each item is inspected; hat is the level of monkey business after 10000 rounds?",
+                levelOfMonkeyBusinessAfter10000Rounds,
                 terminator: "\n\n"
             )
         }
@@ -62,11 +70,42 @@ extension Commands {
             return inspectedItemsByMonkey.values.sorted(by: >).prefix(2).reduce(1, *)
         }
         
+        func part2(monkeys: [Monkey]) -> Int {
+            var monkeys = monkeys
+            let numberOfRounds = 10_000
+            var inspectedItemsByMonkey = [Int: Int]()
+            
+            let modulo = monkeys.reduce(into: 1, { result, monkey in
+                result *= monkey.divider
+            })
+            
+            for _ in 0 ..< numberOfRounds {
+                for index in monkeys.indices {
+                    inspectedItemsByMonkey[index, default: 0] += monkeys[index].items.count
+                    
+                    while var item = monkeys[index].items.popFirst() {
+                        item = monkeys[index].operation(item)
+                        item %= modulo
+                        
+                        let resultOfTest = monkeys[index].test(item)
+                        let monkeyToThrow = monkeys[index].monkeyToThrow(resultOfTest)
+                        monkeys[monkeyToThrow].items.append(item)
+                    }
+                }
+            }
+            
+            return inspectedItemsByMonkey.values.sorted(by: >).prefix(2).reduce(1, *)
+        }
+        
         struct Monkey {
             var items: Deque<Int>
             var operation: (Int) -> Int
-            var test: (Int) -> Bool
-            var monkeyToThrow: (Bool) -> Int
+            let divider: Int
+            let monkeyToThrow: (Bool) -> Int
+            
+            func test(_ worryLevel: Int) -> Bool {
+                worryLevel.isMultiple(of: divider)
+            }
             
             init?(lines: [String]) {
                 let lines = lines.map({ $0.trimmingCharacters(in: .whitespaces) })
@@ -83,7 +122,7 @@ extension Commands {
                     return nil
                 }
                 
-                guard let test = Self.test(from: lines[2]) else {
+                guard let divider = Self.divider(from: lines[2]) else {
                     return nil
                 }
                 
@@ -93,7 +132,7 @@ extension Commands {
                 
                 self.items = Deque(startingItems)
                 self.operation = operation
-                self.test = test
+                self.divider = divider
                 self.monkeyToThrow = monkeyToThrow
             }
             
@@ -130,14 +169,9 @@ extension Commands {
                 }
             }
             
-            private static func test(from line: String) -> ((Int) -> Bool)? {
+            private static func divider(from line: String) -> Int? {
                 let rawValue = line.removingPrefix("Test: divisible by ")
-                
-                guard let number = Int(rawValue) else {
-                    return nil
-                }
-                
-                return { $0.isMultiple(of: number) }
+                return Int(rawValue)
             }
             
             private static func monkeyToThrows(from lines: [String]) -> ((Bool) -> Int)? {
