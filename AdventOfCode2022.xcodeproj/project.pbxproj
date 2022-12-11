@@ -22,6 +22,8 @@
 		34F80D4F29420A8200DB9C0D /* Day8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D4E29420A8200DB9C0D /* Day8.swift */; };
 		34F80D5429435E6100DB9C0D /* Day9.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D5329435E6100DB9C0D /* Day9.swift */; };
 		34F80D5A2944E51100DB9C0D /* Day10.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D592944E51100DB9C0D /* Day10.swift */; };
+		34F80D5F294614AF00DB9C0D /* Day11.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D5E294614AF00DB9C0D /* Day11.swift */; };
+		34F80D6429461CB300DB9C0D /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 34F80D6329461CB300DB9C0D /* Collections */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -70,6 +72,9 @@
 		34F80D592944E51100DB9C0D /* Day10.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day10.swift; sourceTree = "<group>"; };
 		34F80D5B2944E51B00DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
 		34F80D5C2944E52500DB9C0D /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
+		34F80D5E294614AF00DB9C0D /* Day11.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day11.swift; sourceTree = "<group>"; };
+		34F80D60294614BB00DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
+		34F80D61294614C600DB9C0D /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -79,6 +84,7 @@
 			files = (
 				34F80D44293F6DFA00DB9C0D /* Algorithms in Frameworks */,
 				3430D25F293994D800693452 /* ArgumentParser in Frameworks */,
+				34F80D6429461CB300DB9C0D /* Collections in Frameworks */,
 				34F80D4C2940B97B00DB9C0D /* SwiftDataStructures in Frameworks */,
 				3430D264293995FF00693452 /* AdventOfCodeUtilities in Frameworks */,
 			);
@@ -116,6 +122,7 @@
 				34F80D4D29420A7400DB9C0D /* Day8 */,
 				34F80D5229435E5400DB9C0D /* Day9 */,
 				34F80D582944E50100DB9C0D /* Day10 */,
+				34F80D5D2946149C00DB9C0D /* Day11 */,
 				3430D2532939942600693452 /* main.swift */,
 			);
 			path = AdventOfCode2022;
@@ -222,6 +229,16 @@
 			path = Day10;
 			sourceTree = "<group>";
 		};
+		34F80D5D2946149C00DB9C0D /* Day11 */ = {
+			isa = PBXGroup;
+			children = (
+				34F80D5E294614AF00DB9C0D /* Day11.swift */,
+				34F80D60294614BB00DB9C0D /* test_input.txt */,
+				34F80D61294614C600DB9C0D /* puzzle_input.txt */,
+			);
+			path = Day11;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -243,6 +260,7 @@
 				3430D263293995FF00693452 /* AdventOfCodeUtilities */,
 				34F80D43293F6DFA00DB9C0D /* Algorithms */,
 				34F80D4B2940B97B00DB9C0D /* SwiftDataStructures */,
+				34F80D6329461CB300DB9C0D /* Collections */,
 			);
 			productName = AdventOfCode2022;
 			productReference = 3430D2502939942600693452 /* AdventOfCode2022 */;
@@ -277,6 +295,7 @@
 				3430D262293995FE00693452 /* XCRemoteSwiftPackageReference "AdventOfCodeUtilities" */,
 				34F80D42293F6DFA00DB9C0D /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 				34F80D4A2940B97B00DB9C0D /* XCRemoteSwiftPackageReference "SwiftDataStructures" */,
+				34F80D6229461CB300DB9C0D /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = 3430D2512939942600693452 /* Products */;
 			projectDirPath = "";
@@ -294,6 +313,7 @@
 			files = (
 				3430D2612939959E00693452 /* Day1.swift in Sources */,
 				3430D274293CDACA00693452 /* Day4.swift in Sources */,
+				34F80D5F294614AF00DB9C0D /* Day11.swift in Sources */,
 				34F80D4729401FEB00DB9C0D /* Day7.swift in Sources */,
 				3430D26A29399ACC00693452 /* Day2.swift in Sources */,
 				3430D26F293B9ADA00693452 /* Day3.swift in Sources */,
@@ -496,6 +516,14 @@
 				kind = branch;
 			};
 		};
+		34F80D6229461CB300DB9C0D /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -518,6 +546,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 34F80D4A2940B97B00DB9C0D /* XCRemoteSwiftPackageReference "SwiftDataStructures" */;
 			productName = SwiftDataStructures;
+		};
+		34F80D6329461CB300DB9C0D /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34F80D6229461CB300DB9C0D /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
