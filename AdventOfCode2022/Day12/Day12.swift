@@ -32,17 +32,116 @@ extension Commands {
                 fewestStepsToReachLocationWithBestSignal,
                 terminator: "\n\n"
             )
+            
+            let fewestStepsFromAnySquareToLocationWithBestSignal = part2(grid: grid)
+            printTitle("Part 2", level: .title1)
+            print(
+                "What is the fewest steps required to move starting from any square with elevation a to the location that should get the best signal?",
+                fewestStepsFromAnySquareToLocationWithBestSignal
+            )
         }
         
         func part1(grid: Grid) -> Int {
-            var distancesByPoint = [grid.startingPoint: 0]
-            var frontier: Deque = [grid.startingPoint]
+            let distanceByPoint = distancesGoingUp(from: grid.startingPoint, elevationsByPoint: grid.elevationsByPoint)
+            return distanceByPoint[grid.target, default: 0]
+        }
+        
+        func part2(grid: Grid) -> Int {
+            let distancesByPoint = distancesGoingDown(from: grid.target, elevationsByPoint: grid.elevationsByPoint)
             
-            while let point = frontier.popFirst() {
+            return distancesByPoint
+                .filter({
+                    grid.elevationsByPoint[$0.key] == 0
+                })
+                .min(by: {
+                    distancesByPoint[$0.key, default: 0] < distancesByPoint[$1.key, default: 0]
+                })!
+                .value
+        }
+        
+        private func distancesGoingUp(
+            from start: Point2D,
+            elevationsByPoint: [Point2D: Int]
+        ) -> [Point2D: Int] {
+            // Map all the shortest distances from the start to any point while going up
+            var distancesByPoint = [start: 0]
+            var queue: Deque = [start]
+            
+            while let point = queue.popFirst() {
+                let distance = distancesByPoint[point, default: 0]
+                
+                let neighbors = point.neighbors.filter({ neighbor in
+                    guard elevationsByPoint.keys.contains(neighbor) else {
+                        return false
+                    }
+                    
+                    guard !distancesByPoint.keys.contains(neighbor) ||
+                            distancesByPoint[neighbor, default: 0] > distance + 1 else {
+                        return false
+                    }
+                    
+                    let elevationDifference = elevationsByPoint[neighbor, default: 0]
+                        - elevationsByPoint[point, default: 0]
+                    return elevationDifference <= 1
+                })
+                
+                for neighbor in neighbors {
+                    distancesByPoint[neighbor] = distance + 1
+                    queue.append(neighbor)
+                }
+            }
+            
+            return distancesByPoint
+        }
+        
+        private func distancesGoingDown(
+            from end: Point2D,
+            elevationsByPoint: [Point2D: Int]
+        ) -> [Point2D: Int] {
+            // Map all the shortest distances from the end to any point while going down
+            var distancesByPoint = [end: 0]
+            var queue: Deque = [end]
+            
+            while let point = queue.popFirst() {
+                let distance = distancesByPoint[point, default: 0]
+                
+                let neighbors = point.neighbors.filter({ neighbor in
+                    guard elevationsByPoint.keys.contains(neighbor) else {
+                        return false
+                    }
+                    
+                    guard !distancesByPoint.keys.contains(neighbor) ||
+                            distancesByPoint[neighbor, default: 0] > distance + 1 else {
+                        return false
+                    }
+                    
+                    let elevationDifference = elevationsByPoint[point, default: 0]
+                        - elevationsByPoint[neighbor, default: 0]
+                    return elevationDifference <= 1
+                })
+                
+                for neighbor in neighbors {
+                    distancesByPoint[neighbor] = distance + 1
+                    queue.append(neighbor)
+                }
+            }
+            
+            return distancesByPoint
+        }
+        
+        private func shortestDistance(
+            from start: Point2D,
+            to end: Point2D,
+            elevationsByPoint: [Point2D: Int]
+        ) -> Int {
+            var distancesByPoint = [start: 0]
+            var queue: Deque = [start]
+            
+            while let point = queue.popFirst() {
                 let distance = distancesByPoint[point, default: 0]
                 
                 for neighbor in point.neighbors {
-                    guard grid.contains(neighbor) else {
+                    guard elevationsByPoint.keys.contains(neighbor) else {
                         continue
                     }
                     
@@ -51,18 +150,60 @@ extension Commands {
                         continue
                     }
                     
-                    let elevationDifference = grid.elevationsByPoint[neighbor, default: 0]
-                        - grid.elevationsByPoint[point, default: 0]
+                    let elevationDifference = elevationsByPoint[neighbor, default: 0]
+                        - elevationsByPoint[point, default: 0]
                     guard elevationDifference <= 1 else {
                         continue
                     }
                     
                     distancesByPoint[neighbor] = distance + 1
-                    frontier.append(neighbor)
+                    queue.append(neighbor)
                 }
             }
             
-            return distancesByPoint[grid.target, default: 0]
+            return distancesByPoint[end, default: 0]
+        }
+        
+        private func shortestDistanceFromAnyLowestPoint(
+            to end: Point2D,
+            elevationsByPoint: [Point2D: Int]
+        ) -> Int? {
+            var frontier: Deque<[Point2D]> = [[end]] {
+                didSet {
+                    frontier.sort(by: { $0.count < $1.count })
+                }
+            }
+            var visited = Set<Point2D>()
+            
+            while let shortestPath = frontier.popFirst() {
+                let last = shortestPath.last!
+                
+                if elevationsByPoint[last] == 0 {
+                    return shortestPath.count - 1
+                }
+                
+                visited.insert(last)
+                
+                let neighbors = last.neighbors.filter({ neighbor in
+                    guard elevationsByPoint.keys.contains(neighbor) else {
+                        return false
+                    }
+                    
+                    guard !visited.contains(neighbor) else {
+                        return false
+                    }
+                    
+                    let elevationDifference = elevationsByPoint[last, default: 0] - elevationsByPoint[neighbor, default: 0]
+                    return elevationDifference <= 1
+                })
+                
+                for neighbor in neighbors {
+                    let path = shortestPath + [neighbor]
+                    frontier.append(path)
+                }
+            }
+            
+            return nil
         }
         
         struct Grid {
