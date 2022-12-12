@@ -50,12 +50,8 @@ extension Commands {
             let distancesByPoint = distancesGoingDown(from: grid.target, elevationsByPoint: grid.elevationsByPoint)
             
             return distancesByPoint
-                .filter({
-                    grid.elevationsByPoint[$0.key] == 0
-                })
-                .min(by: {
-                    distancesByPoint[$0.key, default: 0] < distancesByPoint[$1.key, default: 0]
-                })!
+                .filter({ grid.elevationsByPoint[$0.key] == 0 })
+                .min(by: { distancesByPoint[$0.key, default: 0] < distancesByPoint[$1.key, default: 0] })!
                 .value
         }
         
@@ -63,7 +59,7 @@ extension Commands {
             from start: Point2D,
             elevationsByPoint: [Point2D: Int]
         ) -> [Point2D: Int] {
-            // Map all the shortest distances from the start to any point while going up
+            // Map all the shortest distances from the start to any point while going up using breadth-first search
             var distancesByPoint = [start: 0]
             var queue: Deque = [start]
             
@@ -75,8 +71,8 @@ extension Commands {
                         return false
                     }
                     
-                    guard !distancesByPoint.keys.contains(neighbor) ||
-                            distancesByPoint[neighbor, default: 0] > distance + 1 else {
+                    if distancesByPoint.keys.contains(neighbor),
+                       distancesByPoint[neighbor, default: 0] <= distance + 1 {
                         return false
                     }
                     
@@ -98,7 +94,7 @@ extension Commands {
             from end: Point2D,
             elevationsByPoint: [Point2D: Int]
         ) -> [Point2D: Int] {
-            // Map all the shortest distances from the end to any point while going down
+            // Map all the shortest distances from the end to any point while going down using breadth-first search
             var distancesByPoint = [end: 0]
             var queue: Deque = [end]
             
@@ -110,8 +106,8 @@ extension Commands {
                         return false
                     }
                     
-                    guard !distancesByPoint.keys.contains(neighbor) ||
-                            distancesByPoint[neighbor, default: 0] > distance + 1 else {
+                    if distancesByPoint.keys.contains(neighbor),
+                        distancesByPoint[neighbor, default: 0] <= distance + 1 {
                         return false
                     }
                     
