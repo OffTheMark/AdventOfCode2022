@@ -89,30 +89,7 @@ extension Commands {
 }
 
 fileprivate func areInRightOrder(_ left: [ListItem], _ right: [ListItem]) -> Bool? {
-    var leftHasRunOut = false
-    var rightHasRunOut = false
-    for index in 0... {
-        leftHasRunOut = index == left.endIndex
-        rightHasRunOut = index == right.endIndex
-        
-        if leftHasRunOut, !rightHasRunOut {
-            return true
-        }
-        
-        if rightHasRunOut, !leftHasRunOut {
-            return false
-        }
-        
-        if leftHasRunOut, rightHasRunOut {
-            return nil
-        }
-        
-        if let areInRightOrder = areInRightOrder(left[index], right[index]) {
-            return areInRightOrder
-        }
-    }
-    
-    return nil
+    areInRightOrder(.list(left), .list(right))
 }
 
 fileprivate func areInRightOrder(_ left: ListItem, _ right: ListItem) -> Bool? {
@@ -129,7 +106,30 @@ fileprivate func areInRightOrder(_ left: ListItem, _ right: ListItem) -> Bool? {
         }
         
     case (.list(let left), .list(let right)):
-        return areInRightOrder(left, right)
+        var leftHasRunOut = false
+        var rightHasRunOut = false
+        for index in 0... {
+            leftHasRunOut = index == left.endIndex
+            rightHasRunOut = index == right.endIndex
+            
+            if leftHasRunOut, rightHasRunOut {
+                return nil
+            }
+            
+            if leftHasRunOut {
+                return true
+            }
+            
+            if rightHasRunOut {
+                return false
+            }
+            
+            if let areInRightOrder = areInRightOrder(left[index], right[index]) {
+                return areInRightOrder
+            }
+        }
+        
+        return nil
         
     case (.integer(let left), .list):
         return areInRightOrder(.list([.integer(left)]), right)
