@@ -45,6 +45,13 @@ extension Commands {
                 sumOfIndicesOfPairsInRightOrder,
                 terminator: "\n\n"
             )
+            
+            let decoderKey = part2(pairs: pairs)
+            printTitle("Part 2", level: .title1)
+            print(
+                "Organize all of the packets into the correct order. What is the decoder key for the distress signal?",
+                decoderKey
+            )
         }
         
         fileprivate func part1(pairs: [(left: [ListItem], right: [ListItem])]) -> Int {
@@ -54,6 +61,28 @@ extension Commands {
             
             return indicesInRightOrder.reduce(into: 0, { sum, index in
                 sum += index + 1
+            })
+        }
+        
+        fileprivate func part2(pairs: [(left: [ListItem], right: [ListItem])]) -> Int {
+            var packets: [[ListItem]] = pairs.reduce(into: [], { result, pair in
+                result.append(pair.left)
+                result.append(pair.right)
+            })
+            
+            let decoderPackets: [[ListItem]] = [
+                [.list([.integer(2)])],
+                [.list([.integer(6)])]
+            ]
+            packets.append(contentsOf: decoderPackets)
+            
+            let sortedPackets = packets.sorted(by: { areInRightOrder($0, $1) ?? false })
+            return decoderPackets.reduce(into: 1, { product, packet in
+                guard let index = sortedPackets.firstIndex(of: packet) else {
+                    return
+                }
+                
+                product *= index + 1
             })
         }
     }
@@ -112,7 +141,7 @@ fileprivate func areInRightOrder(_ left: ListItem, _ right: ListItem) -> Bool? {
     return nil
 }
 
-fileprivate indirect enum ListItem {
+fileprivate indirect enum ListItem: Equatable {
     case integer(Int)
     case list([ListItem])
 }
