@@ -217,6 +217,12 @@ struct Point2D: Hashable {
         x += translation.deltaX
         y += translation.deltaY
     }
+    
+    func applying(_ translation: Translation2D) -> Self {
+        var copy = self
+        copy.apply(translation)
+        return copy
+    }
 }
 
 struct Translation2D: Hashable {
