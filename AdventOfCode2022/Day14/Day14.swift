@@ -36,18 +36,25 @@ extension Commands {
                 })
             })
             
-            let numberOfUnitsOfSand = part1(paths: paths)
+            let numberOfUnitsOfSandAtRestWithAbyss = part1(paths: paths)
             printTitle("Part 1", level: .title1)
             print(
                 "How many units of sand come to rest before sand starts flowing into the abyss below?",
-                numberOfUnitsOfSand,
+                numberOfUnitsOfSandAtRestWithAbyss,
                 terminator: "\n\n"
+            )
+            
+            let numberOfUnitsOfSandAtRestWithFloor = part2(paths: paths)
+            print(
+                "Using your scan, simulate the falling sand until the source of the sand becomes blocked. How many units of sand come to rest?",
+                numberOfUnitsOfSandAtRestWithFloor
             )
         }
         
         func part1(paths: [Path]) -> Int {
             let sourceOfSand = Point2D(x: 500, y: 0)
             var itemsByPoint = itemsByPoint(paths: paths)
+            itemsByPoint[sourceOfSand] = .sourceOfSand
             let lowestY = itemsByPoint.keys.min(by: { $0.y > $1.y })!.y
             let down = Translation2D(deltaX: 0, deltaY: 1)
             let downLeft = Translation2D(deltaX: -1, deltaY: 1)
@@ -69,7 +76,9 @@ extension Commands {
                         currentPosition.apply(down)
                         continue
                         
-                    case .rock, .sand:
+                    case .rock,
+                         .sand,
+                         .sourceOfSand:
                         break
                     }
                     
@@ -78,7 +87,9 @@ extension Commands {
                         currentPosition.apply(downLeft)
                         continue
                         
-                    case .rock, .sand:
+                    case .rock,
+                         .sand,
+                         .sourceOfSand:
                         break
                     }
                     
@@ -87,7 +98,9 @@ extension Commands {
                         currentPosition.apply(downRight)
                         continue
                         
-                    case .rock, .sand:
+                    case .rock,
+                         .sand,
+                         .sourceOfSand:
                         break
                     }
                     
@@ -97,6 +110,76 @@ extension Commands {
                 itemsByPoint[currentPosition] = .sand
             }
             while !sandIsFallingInTheAbyss
+            
+            return itemsByPoint.values.count(of: .sand)
+        }
+        
+        func part2(paths: [Path]) -> Int {
+            let sourceOfSand = Point2D(x: 500, y: 0)
+            var itemsByPoint = itemsByPoint(paths: paths)
+            itemsByPoint[sourceOfSand] = .sourceOfSand
+            
+            let lowestY = itemsByPoint.keys.min(by: { $0.y > $1.y })!.y
+            let floorY = lowestY + 2
+            let down = Translation2D(deltaX: 0, deltaY: 1)
+            let downLeft = Translation2D(deltaX: -1, deltaY: 1)
+            let downRight = Translation2D(deltaX: 1, deltaY: 1)
+            
+            func item(at point: Point2D) -> Item {
+                if point.y == floorY {
+                    return .rock
+                }
+                
+                return itemsByPoint[point, default: .air]
+            }
+            
+            pouringGrains: repeat {
+                var hasComeToRest = false
+                var currentPosition = sourceOfSand
+                while !hasComeToRest {
+                    switch item(at: currentPosition.applying(down)) {
+                    case .air:
+                        currentPosition.apply(down)
+                        continue
+                        
+                    case .rock,
+                         .sand,
+                         .sourceOfSand:
+                        break
+                    }
+                    
+                    switch item(at: currentPosition.applying(downLeft)) {
+                    case .air:
+                        currentPosition.apply(downLeft)
+                        continue
+                        
+                    case .rock,
+                         .sand,
+                         .sourceOfSand:
+                        break
+                    }
+                    
+                    switch item(at: currentPosition.applying(downRight)) {
+                    case .air:
+                        currentPosition.apply(downRight)
+                        continue
+                        
+                    case .rock,
+                         .sand,
+                         .sourceOfSand:
+                        break
+                    }
+                    
+                    hasComeToRest = true
+                }
+                
+                itemsByPoint[currentPosition] = .sand
+                
+                if currentPosition == sourceOfSand {
+                    break
+                }
+            }
+            while true
             
             return itemsByPoint.values.count(of: .sand)
         }
@@ -127,6 +210,7 @@ extension Commands {
             case sand = "o"
             case air = "."
             case rock = "#"
+            case sourceOfSand = "+"
         }
     }
 }
