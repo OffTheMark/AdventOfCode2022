@@ -31,6 +31,7 @@ enum Commands {
                     Commands.Day12.self,
                     Commands.Day13.self,
                     Commands.Day14.self,
+                    Commands.Day15.self,
                 ]
             )
         }
