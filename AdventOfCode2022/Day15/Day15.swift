@@ -25,6 +25,9 @@ extension Commands {
         @Argument(help: "Target y")
         var targetY: Int
         
+        @Argument(help: "Coordinate bound")
+        var coordinateBound: Int
+        
         func run() throws {
             let pairs: [(sensor: Point2D, beacon: Point2D)] = try readLines().compactMap(parse)
             
@@ -34,6 +37,13 @@ extension Commands {
                 "In the row where y=\(targetY), how many positions cannot contain a beacon?",
                 numberOfPositionsThatCannotContainABeacon,
                 terminator: "\n\n"
+            )
+            
+            printTitle("Part 2", level: .title1)
+            let tuningFrequency = part2(pairs: pairs, coordinateBound: coordinateBound)
+            print(
+                "Find the only possible position for the distress beacon. What is its tuning frequency?",
+                tuningFrequency
             )
         }
         
@@ -83,9 +93,13 @@ extension Commands {
         }
         
         func part1(pairs: [(sensor: Point2D, beacon: Point2D)], targetY: Int) -> Int {
-            let occupiedPoints: Set<Point2D> = pairs.reduce(into: [], { result, pair in
-                result.insert(pair.sensor)
-                result.insert(pair.beacon)
+            let occupiedPointsAtTargetY: Set<Point2D> = pairs.reduce(into: [], { result, pair in
+                if pair.sensor.y == targetY {
+                    result.insert(pair.sensor)
+                }
+                if pair.beacon.y == targetY {
+                    result.insert(pair.beacon)
+                }
             })
             var pointsWhereNoBeaconCanBeAtTargetY = Set<Point2D>()
             
@@ -97,20 +111,55 @@ extension Commands {
                     continue
                 }
                 
-                let absoluteDeltaXAtTargetX = distanceToBeacon - abs(deltaYToTargetY)
+                let absoluteDeltaXAtTargetY = distanceToBeacon - abs(deltaYToTargetY)
+                let deltaXRange = -absoluteDeltaXAtTargetY ... absoluteDeltaXAtTargetY
+                let vacantPointsAtTargetY: Set<Point2D> = Set(
+                    deltaXRange.map({ deltaX in
+                        Point2D(x: sensor.x + deltaX, y: targetY)
+                    })
+                )
+                .subtracting(occupiedPointsAtTargetY)
                 
-                for deltaX in -absoluteDeltaXAtTargetX ... absoluteDeltaXAtTargetX {
-                    let candidate = Point2D(x: sensor.x + deltaX, y: targetY)
-                    
-                    guard !occupiedPoints.contains(candidate) else {
-                        continue
-                    }
-                    
-                    pointsWhereNoBeaconCanBeAtTargetY.insert(candidate)
-                }
+                pointsWhereNoBeaconCanBeAtTargetY.formUnion(vacantPointsAtTargetY)
             }
             
-            return pointsWhereNoBeaconCanBeAtTargetY.count(where: { $0.y == targetY })
+            return pointsWhereNoBeaconCanBeAtTargetY.count
+        }
+        
+        // https://www.reddit.com/r/adventofcode/comments/zmcn64/comment/j0b90nr/
+        func part2(pairs: [(sensor: Point2D, beacon: Point2D)], coordinateBound: Int) -> Int {
+            let distancesBySensor: [Point2D: Int] = pairs.reduce(into: [:], { result, pair in
+                result[pair.sensor] = pair.sensor.manhattanDistance(to: pair.beacon)
+            })
+            var aCoefficients = Set<Int>()
+            var bCoefficients = Set<Int>()
+            
+            for (sensor, distance) in distancesBySensor {
+                aCoefficients.insert(sensor.y - sensor.x + distance + 1)
+                aCoefficients.insert(sensor.y - sensor.x - distance - 1)
+                bCoefficients.insert(sensor.y + sensor.x + distance + 1)
+                bCoefficients.insert(sensor.y + sensor.x - distance - 1)
+            }
+            
+            let validCoordinateRange = 0 ... coordinateBound
+            
+            let point = product(aCoefficients, bCoefficients).lazy
+                .map({ pair in
+                    let (a, b) = pair
+                    return Point2D(x: (b - a) / 2, y: (a + b) / 2)
+                })
+                .first(where: { candidate in
+                    guard validCoordinateRange.contains(candidate.x), validCoordinateRange.contains(candidate.y) else {
+                        return false
+                    }
+                    
+                    return distancesBySensor.allSatisfy({ pair in
+                        let (sensor, distance) = pair
+                        return candidate.manhattanDistance(to: sensor) > distance
+                    })
+                })!
+            
+            return point.x * 4_000_000 + point.y
         }
     }
 }
