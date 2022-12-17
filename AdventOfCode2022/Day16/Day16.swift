@@ -65,6 +65,12 @@ extension Commands {
                 let valve: String
             }
             
+            func flowRate(for openedValves: any Sequence<String>) -> Int {
+                openedValves.reduce(into: 0, { sum, valve in
+                    sum += valvesByName[valve]!.flowRate
+                })
+            }
+            
             var queue: Deque<State> = [.init(
                 elapsedTime: 1,
                 valve: "AA",
@@ -89,9 +95,7 @@ extension Commands {
                 // We open the current valve if it is not opened
                 if valvesByName[state.valve]!.flowRate > 0, !state.openedValves.contains(state.valve) {
                     let openedValves = state.openedValves.union([state.valve])
-                    let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
-                        sum += valvesByName[valve]!.flowRate
-                    })
+                    let pressure = state.pressure + flowRate(for: openedValves)
                     let newState = State(
                         elapsedTime: state.elapsedTime + 1,
                         valve: state.valve,
@@ -102,9 +106,7 @@ extension Commands {
                 }
                 
                 // We don't open the current valve but rather move to another valve.
-                let pressure = state.pressure + state.openedValves.reduce(into: 0, { sum, valve in
-                    sum += valvesByName[valve]!.flowRate
-                })
+                let pressure = state.pressure + flowRate(for: state.openedValves)
                 for neighbor in valvesByName[state.valve]!.connectedValves {
                     let newState = State(
                         elapsedTime: state.elapsedTime + 1,
@@ -142,6 +144,12 @@ extension Commands {
                 let elephantValve: String
             }
             
+            func flowRate(for openedValves: any Sequence<String>) -> Int {
+                openedValves.reduce(into: 0, { sum, valve in
+                    sum += valvesByName[valve]!.flowRate
+                })
+            }
+            
             var queue: Deque<State> = [.init(
                 elapsedTime: 1,
                 valve: "AA",
@@ -169,9 +177,7 @@ extension Commands {
                 }
                 
                 // All valves are opened. So we wait and let the pressure build.
-                let currentFlow = state.openedValves.reduce(into: 0, { sum, valve in
-                    sum += valvesByName[valve]!.flowRate
-                })
+                let currentFlow = flowRate(for: state.openedValves)
                 if currentFlow >= maximumFlowRate {
                     var pressure = state.pressure + currentFlow
                     var elapsedTime = state.elapsedTime
@@ -198,9 +204,7 @@ extension Commands {
                     if valvesByName[state.elephantValve]!.flowRate > 0, !openedValves.contains(state.elephantValve) {
                         openedValves.insert(state.elephantValve)
                     
-                        let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
-                            sum += valvesByName[valve]!.flowRate
-                        })
+                        let pressure = state.pressure + flowRate(for: openedValves)
                         let newState = State(
                             elapsedTime: state.elapsedTime + 1,
                             valve: state.valve,
@@ -214,9 +218,7 @@ extension Commands {
                     }
                     
                     // The elephant doesn't open its current valve but rather moves to another valve.
-                    let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
-                        sum += valvesByName[valve]!.flowRate
-                    })
+                    let pressure = state.pressure + flowRate(for: openedValves)
                     for neighbor in valvesByName[state.elephantValve]!.connectedValves {
                         let newState = State(
                             elapsedTime: state.elapsedTime + 1,
@@ -237,9 +239,7 @@ extension Commands {
                     if valvesByName[state.elephantValve]!.flowRate > 0, !openedValves.contains(state.elephantValve) {
                         openedValves.insert(state.elephantValve)
                         
-                        let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
-                            sum += valvesByName[valve]!.flowRate
-                        })
+                        let pressure = state.pressure + flowRate(for: openedValves)
                         let newState = State(
                             elapsedTime: state.elapsedTime + 1,
                             valve: ourNeighbor,
@@ -253,9 +253,7 @@ extension Commands {
                     }
                     
                     // The elephant doesn't open its current valve but rather moves to another valve.
-                    let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
-                        sum += valvesByName[valve]!.flowRate
-                    })
+                    let pressure = state.pressure + flowRate(for: openedValves)
                     for elephantNeighbor in valvesByName[state.elephantValve]!.connectedValves {
                         let newState = State(
                             elapsedTime: state.elapsedTime + 1,
