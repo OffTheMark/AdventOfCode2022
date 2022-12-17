@@ -30,73 +30,249 @@ extension Commands {
             })
             
             printTitle("Part 1", level: .title1)
-            let (highestReleasedPressureAlone, cache) = part1(valvesByName: valvesByName)
+            let highestReleasedPressureAlone = part1(valvesByName: valvesByName)
             print(
                 "Work out the steps to release the most pressure in 30 minutes. What is the most pressure you can release?",
                 highestReleasedPressureAlone,
                 terminator: "\n\n"
             )
+            
+            printTitle("Part 2", level: .title1)
+            let highestReleasedPressureWithElephant = part2(valvesByName: valvesByName)
+            print(
+                "With you and an elephant working together for 26 minutes, what is the most pressure you could release?",
+                highestReleasedPressureWithElephant
+            )
         }
         
-        // https://www.reddit.com/r/adventofcode/comments/zn6k1l/comment/j0fpyu4/
-        mutating func part1(valvesByName: [String: Valve]) -> (Int, [CacheKey: Int]) {
-            var cache = [CacheKey: Int]()
-            
-            func visit(openedValves: Set<String>, timeRemaining: Int, current: String) -> Int {
-                let cacheKey = CacheKey(
-                    openedValves: openedValves,
-                    timeRemaining: timeRemaining,
-                    current: current
-                )
-                if let cachedValue = cache[cacheKey] {
-                    return cachedValue
-                }
+        // https://www.reddit.com/r/adventofcode/comments/zn6k1l/comment/j0g55m3/
+        mutating func part1(valvesByName: [String: Valve]) -> Int {
+            struct State {
+                let elapsedTime: Int
+                let valve: String
+                let pressure: Int
+                let openedValves: Set<String>
                 
-                if timeRemaining <= 0 {
-                    return 0
-                }
-                
-                var best = 0
-                let valve = valvesByName[current]!
-                
-                for neighbor in valve.connectedValves {
-                    let candidate = visit(
-                        openedValves: openedValves,
-                        timeRemaining: timeRemaining - 1,
-                        current: neighbor
+                var visited: Visited {
+                    Visited(
+                        elapsedTime: elapsedTime,
+                        valve: valve
                     )
-                    best = max(best, candidate)
+                }
+            }
+            struct Visited: Hashable {
+                let elapsedTime: Int
+                let valve: String
+            }
+            
+            var queue: Deque<State> = [.init(
+                elapsedTime: 1,
+                valve: "AA",
+                pressure: 0,
+                openedValves: []
+            )]
+            var bestPressureByVisited = [Visited: Int]()
+            var bestPressure = 0
+            
+            while let state = queue.popFirst() {
+                let visited = state.visited
+                if let best = bestPressureByVisited[visited], best >= state.pressure {
+                    continue
+                }
+                bestPressureByVisited[visited] = state.pressure
+                
+                if state.elapsedTime >= 30 {
+                    bestPressure = max(bestPressure, state.pressure)
+                    continue
                 }
                 
-                if !openedValves.contains(current), valve.flowRate > 0, timeRemaining > 0 {
-                    let timeRemaining = timeRemaining - 1
-                    let newSum = timeRemaining * valve.flowRate
+                // We open the current valve if it is not opened
+                if valvesByName[state.valve]!.flowRate > 0, !state.openedValves.contains(state.valve) {
+                    let openedValves = state.openedValves.union([state.valve])
+                    let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
+                        sum += valvesByName[valve]!.flowRate
+                    })
+                    let newState = State(
+                        elapsedTime: state.elapsedTime + 1,
+                        valve: state.valve,
+                        pressure: pressure,
+                        openedValves: openedValves
+                    )
+                    queue.append(newState)
+                }
+                
+                // We don't open the current valve but rather move to another valve.
+                let pressure = state.pressure + state.openedValves.reduce(into: 0, { sum, valve in
+                    sum += valvesByName[valve]!.flowRate
+                })
+                for neighbor in valvesByName[state.valve]!.connectedValves {
+                    let newState = State(
+                        elapsedTime: state.elapsedTime + 1,
+                        valve: neighbor,
+                        pressure: pressure,
+                        openedValves: state.openedValves
+                    )
+                    queue.append(newState)
+                }
+            }
+            
+            return bestPressure
+        }
+        
+        mutating func part2(valvesByName: [String: Valve]) -> Int {
+            struct State {
+                let elapsedTime: Int
+                let valve: String
+                let elephantValve: String
+                let pressure: Int
+                let openedValves: Set<String>
+                
+                var visited: Visited {
+                    Visited(
+                        elapsedTime: elapsedTime,
+                        valve: valve,
+                        elephantValve: elephantValve
+                    )
+                }
+            }
+            
+            struct Visited: Hashable {
+                let elapsedTime: Int
+                let valve: String
+                let elephantValve: String
+            }
+            
+            var queue: Deque<State> = [.init(
+                elapsedTime: 1,
+                valve: "AA",
+                elephantValve: "AA",
+                pressure: 0,
+                openedValves: []
+            )]
+            var bestPressureByVisited = [Visited: Int]()
+            var bestPressure = 0
+            
+            let maximumFlowRate = valvesByName.values.reduce(into: 0, { sum, valve in
+                sum += valve.flowRate
+            })
+            
+            while let state = queue.popFirst() {
+                let visited = state.visited
+                if let best = bestPressureByVisited[visited], best >= state.pressure {
+                    continue
+                }
+                bestPressureByVisited[visited] = state.pressure
+                
+                if state.elapsedTime >= 26 {
+                    bestPressure = max(bestPressure, state.pressure)
+                    continue
+                }
+                
+                // All valves are opened. So we wait and let the pressure build.
+                let currentFlow = state.openedValves.reduce(into: 0, { sum, valve in
+                    sum += valvesByName[valve]!.flowRate
+                })
+                if currentFlow >= maximumFlowRate {
+                    var pressure = state.pressure + currentFlow
+                    var elapsedTime = state.elapsedTime
+                    while elapsedTime < 25 {
+                        elapsedTime += 1
+                        pressure += currentFlow
+                    }
+                    let newState = State(
+                        elapsedTime: elapsedTime + 1,
+                        valve: state.valve,
+                        elephantValve: state.elephantValve,
+                        pressure: pressure,
+                        openedValves: state.openedValves
+                    )
+                    queue.append(newState)
+                    continue
+                }
+                
+                // We open our current valve.
+                if valvesByName[state.valve]!.flowRate > 0, !state.openedValves.contains(state.valve) {
+                    var openedValves = state.openedValves.union([state.valve])
                     
-                    for neighbor in valve.connectedValves {
-                        let candidate = newSum + visit(
-                            openedValves: openedValves.union([current]),
-                            timeRemaining: timeRemaining - 1,
-                            current: neighbor
+                    // The elephant opens its current valve.
+                    if valvesByName[state.elephantValve]!.flowRate > 0, !openedValves.contains(state.elephantValve) {
+                        openedValves.insert(state.elephantValve)
+                    
+                        let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
+                            sum += valvesByName[valve]!.flowRate
+                        })
+                        let newState = State(
+                            elapsedTime: state.elapsedTime + 1,
+                            valve: state.valve,
+                            elephantValve: state.elephantValve,
+                            pressure: pressure,
+                            openedValves: openedValves
                         )
-                        best = max(best, candidate)
+                        queue.append(newState)
+                        
+                        openedValves.remove(state.elephantValve)
+                    }
+                    
+                    // The elephant doesn't open its current valve but rather moves to another valve.
+                    let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
+                        sum += valvesByName[valve]!.flowRate
+                    })
+                    for neighbor in valvesByName[state.elephantValve]!.connectedValves {
+                        let newState = State(
+                            elapsedTime: state.elapsedTime + 1,
+                            valve: state.valve,
+                            elephantValve: neighbor,
+                            pressure: pressure,
+                            openedValves: openedValves
+                        )
+                        queue.append(newState)
                     }
                 }
                 
-                cache[cacheKey] = best
-                return best
+                // We don't open our current valve but rather move to another valve.
+                for ourNeighbor in valvesByName[state.valve]!.connectedValves {
+                    var openedValves = state.openedValves
+                    
+                    // The elephant opens its current valve.
+                    if valvesByName[state.elephantValve]!.flowRate > 0, !openedValves.contains(state.elephantValve) {
+                        openedValves.insert(state.elephantValve)
+                        
+                        let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
+                            sum += valvesByName[valve]!.flowRate
+                        })
+                        let newState = State(
+                            elapsedTime: state.elapsedTime + 1,
+                            valve: ourNeighbor,
+                            elephantValve: state.elephantValve,
+                            pressure: pressure,
+                            openedValves: openedValves
+                        )
+                        queue.append(newState)
+                        
+                        openedValves.remove(state.elephantValve)
+                    }
+                    
+                    // The elephant doesn't open its current valve but rather moves to another valve.
+                    let pressure = state.pressure + openedValves.reduce(into: 0, { sum, valve in
+                        sum += valvesByName[valve]!.flowRate
+                    })
+                    for elephantNeighbor in valvesByName[state.elephantValve]!.connectedValves {
+                        let newState = State(
+                            elapsedTime: state.elapsedTime + 1,
+                            valve: ourNeighbor,
+                            elephantValve: elephantNeighbor,
+                            pressure: pressure,
+                            openedValves: openedValves
+                        )
+                        queue.append(newState)
+                    }
+                }
             }
             
-            let best = visit(openedValves: [], timeRemaining: 30, current: "AA")
-            return (best, cache)
+            return bestPressure
         }
-        
-        struct CacheKey: Hashable, Decodable {
-            let openedValves: Set<String>
-            let timeRemaining: Int
-            let current: String
-        }
-        
-        struct Valve: Decodable {
+    
+        struct Valve {
             let name: String
             let flowRate: Int
             let connectedValves: Set<String>
