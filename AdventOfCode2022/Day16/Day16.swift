@@ -8,6 +8,8 @@
 import Foundation
 import ArgumentParser
 import AdventOfCodeUtilities
+import Algorithms
+import Collections
 
 extension Commands {
     struct Day16: DayCommand {
@@ -21,104 +23,81 @@ extension Commands {
         @Argument(help: "Puzzle input path")
         var puzzleInputPath: String
         
-        func run() throws {
-            let connections = try readLines().compactMap(ValveConnection.init)
+        mutating func run() throws {
+            let valves = try readLines().compactMap(Valve.init)
+            let valvesByName = valves.reduce(into: [:], { result, valve in
+                result[valve.name] = valve
+            })
             
             printTitle("Part 1", level: .title1)
-            let highestReleasedPressure = part1(connections: connections)
+            let (highestReleasedPressureAlone, cache) = part1(valvesByName: valvesByName)
             print(
                 "Work out the steps to release the most pressure in 30 minutes. What is the most pressure you can release?",
-                highestReleasedPressure,
+                highestReleasedPressureAlone,
                 terminator: "\n\n"
             )
         }
         
-        func part1(connections: [ValveConnection]) -> Int {
-            // TODO: https://github.com/davearussell/advent2022/blob/master/day16/solve.py
-            var connectedValvesByValve = [String: Set<String>]()
-            var flowRateByValve = [String: Int]()
+        // https://www.reddit.com/r/adventofcode/comments/zn6k1l/comment/j0fpyu4/
+        mutating func part1(valvesByName: [String: Valve]) -> (Int, [CacheKey: Int]) {
+            var cache = [CacheKey: Int]()
             
-            for connection in connections {
-                connectedValvesByValve[connection.valve] = connection.connectedValves
-                flowRateByValve[connection.valve] = connection.flowRate
-            }
-            
-            for (valve, flowRate) in flowRateByValve where valve != "AA" && flowRate <= 0 {
-                flowRateByValve.removeValue(forKey: valve)
-                
-                for key in connectedValvesByValve.keys {
-                    connectedValvesByValve[key, default: []].remove(valve)
+            func visit(openedValves: Set<String>, timeRemaining: Int, current: String) -> Int {
+                let cacheKey = CacheKey(
+                    openedValves: openedValves,
+                    timeRemaining: timeRemaining,
+                    current: current
+                )
+                if let cachedValue = cache[cacheKey] {
+                    return cachedValue
                 }
-            }
-            
-            struct Path {
-                let lastValve: String
-                let openedValves: Set<String>
-                let combinedFlowRate: Int
-                let timeRemaining: Int
                 
-                func appendingValve(_ valve: String, withFlowRate flowRate: Int) -> Path {
-                    var timeRemaining = timeRemaining
-                    if openedValves.contains(valve) {
-                        timeRemaining -= 1
-                    }
-                    else {
-                        timeRemaining -= 2
-                    }
-                    
-                    var combinedFlowRate = combinedFlowRate
-                    if !openedValves.contains(valve) {
-                        combinedFlowRate += timeRemaining * flowRate
-                    }
-                    
-                    return Path(
-                        lastValve: valve,
-                        openedValves: openedValves.union([valve]),
-                        combinedFlowRate: combinedFlowRate,
-                        timeRemaining: timeRemaining
+                if timeRemaining <= 0 {
+                    return 0
+                }
+                
+                var best = 0
+                let valve = valvesByName[current]!
+                
+                for neighbor in valve.connectedValves {
+                    let candidate = visit(
+                        openedValves: openedValves,
+                        timeRemaining: timeRemaining - 1,
+                        current: neighbor
                     )
-                }
-            }
-            
-            let initialPath = Path(
-                lastValve: "AA",
-                openedValves: [],
-                combinedFlowRate: 0,
-                timeRemaining: 30
-            )
-            var frontier = Heap<Path>(
-                array: [initialPath],
-                sort: { $0.combinedFlowRate > $1.combinedFlowRate }
-            )
-            
-            var highestFlowRates = Set<Int>()
-            
-            while let pathWithHighestFlowRate = frontier.remove() {
-                if pathWithHighestFlowRate.timeRemaining == 0 {
-                    highestFlowRates.insert(pathWithHighestFlowRate.combinedFlowRate)
-                    continue
+                    best = max(best, candidate)
                 }
                 
-                let neighbors = connectedValvesByValve[pathWithHighestFlowRate.lastValve, default: []]
-                for neighbor in neighbors {
-                    let newPath = pathWithHighestFlowRate.appendingValve(
-                        neighbor,
-                        withFlowRate: flowRateByValve[neighbor, default: 0]
-                    )
+                if !openedValves.contains(current), valve.flowRate > 0, timeRemaining > 0 {
+                    let timeRemaining = timeRemaining - 1
+                    let newSum = timeRemaining * valve.flowRate
                     
-                    guard newPath.timeRemaining >= 0 else {
-                        continue
+                    for neighbor in valve.connectedValves {
+                        let candidate = newSum + visit(
+                            openedValves: openedValves.union([current]),
+                            timeRemaining: timeRemaining - 1,
+                            current: neighbor
+                        )
+                        best = max(best, candidate)
                     }
-                    
-                    frontier.insert(newPath)
                 }
+                
+                cache[cacheKey] = best
+                return best
             }
             
-            return highestFlowRates.max()!
+            let best = visit(openedValves: [], timeRemaining: 30, current: "AA")
+            return (best, cache)
         }
         
-        struct ValveConnection {
-            let valve: String
+        struct CacheKey: Hashable, Decodable {
+            let openedValves: Set<String>
+            let timeRemaining: Int
+            let current: String
+        }
+        
+        struct Valve: Decodable {
+            let name: String
             let flowRate: Int
             let connectedValves: Set<String>
             
@@ -130,9 +109,8 @@ extension Commands {
                 
                 self.connectedValves = Set(
                     components[1]
-                        .removingPrefix("tunnels lead to valve")
-                        .removingPrefix("s")
-                        .removingPrefix(" ")
+                        .removingPrefix("tunnels lead to valves ")
+                        .removingPrefix("tunnel leads to valve ")
                         .components(separatedBy: ", ")
                 )
                 
@@ -141,7 +119,7 @@ extension Commands {
                     return nil
                 }
                 
-                self.valve = firstPartComponents[1]
+                self.name = firstPartComponents[1]
                 
                 guard let flowRate = Int(firstPartComponents[4].removingPrefix("rate=")) else {
                     return nil
