@@ -217,5 +217,4 @@ extension Heap where T: Equatable {
     }
     return nil
   }
-  
 }
