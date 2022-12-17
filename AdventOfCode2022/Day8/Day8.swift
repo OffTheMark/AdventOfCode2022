@@ -228,7 +228,9 @@ struct Point2D: Hashable {
 struct Translation2D: Hashable {
     var deltaX: Int
     var deltaY: Int
-    
+}
+
+fileprivate extension Translation2D {
     static let up = Self(deltaX: 0, deltaY: -1)
     static let down = Self(deltaX: 0, deltaY: 1)
     static let left = Self(deltaX: -1, deltaY: 0)

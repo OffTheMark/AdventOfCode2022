@@ -137,3 +137,10 @@ fileprivate extension Translation2D {
         return Translation2D(deltaX: normalize(deltaX), deltaY: normalize(deltaY))
     }
 }
+
+fileprivate extension Translation2D {
+    static let up = Self(deltaX: 0, deltaY: -1)
+    static let down = Self(deltaX: 0, deltaY: 1)
+    static let left = Self(deltaX: -1, deltaY: 0)
+    static let right = Self(deltaX: 1, deltaY: 0)
+}
