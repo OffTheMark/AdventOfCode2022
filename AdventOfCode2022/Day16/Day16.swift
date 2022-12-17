@@ -120,7 +120,7 @@ extension Commands {
         struct ValveConnection {
             let valve: String
             let flowRate: Int
-            let connectedValves: [String]
+            let connectedValves: Set<String>
             
             init?(rawValue: String) {
                 let components = rawValue.components(separatedBy: "; ")
@@ -128,11 +128,13 @@ extension Commands {
                     return nil
                 }
                 
-                self.connectedValves = components[1]
-                    .removingPrefix("tunnels lead to valve")
-                    .removingPrefix("s")
-                    .removingPrefix(" ")
-                    .components(separatedBy: ", ")
+                self.connectedValves = Set(
+                    components[1]
+                        .removingPrefix("tunnels lead to valve")
+                        .removingPrefix("s")
+                        .removingPrefix(" ")
+                        .components(separatedBy: ", ")
+                )
                 
                 let firstPartComponents = components[0].components(separatedBy: " ")
                 guard firstPartComponents.count == 5 else {
