@@ -30,6 +30,7 @@
 		34F80D79294B465400DB9C0D /* Day15.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D78294B465400DB9C0D /* Day15.swift */; };
 		34F80D7E294C9A0C00DB9C0D /* Day16.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D7D294C9A0C00DB9C0D /* Day16.swift */; };
 		34F80D82294C9DDE00DB9C0D /* Heap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D81294C9DDE00DB9C0D /* Heap.swift */; };
+		34F80D85294D732E00DB9C0D /* Day17.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34F80D84294D732E00DB9C0D /* Day17.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -97,6 +98,8 @@
 		34F80D7F294C9A1B00DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
 		34F80D80294C9A2B00DB9C0D /* puzzle_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = puzzle_input.txt; sourceTree = "<group>"; };
 		34F80D81294C9DDE00DB9C0D /* Heap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Heap.swift; sourceTree = "<group>"; };
+		34F80D84294D732E00DB9C0D /* Day17.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day17.swift; sourceTree = "<group>"; };
+		34F80D86294D738600DB9C0D /* test_input.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = test_input.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -150,6 +153,7 @@
 				34F80D722948F0A900DB9C0D /* Day14 */,
 				34F80D77294B464600DB9C0D /* Day15 */,
 				34F80D7C294C99FF00DB9C0D /* Day16 */,
+				34F80D83294D732300DB9C0D /* Day17 */,
 				3430D2532939942600693452 /* main.swift */,
 			);
 			path = AdventOfCode2022;
@@ -317,6 +321,15 @@
 			path = Day16;
 			sourceTree = "<group>";
 		};
+		34F80D83294D732300DB9C0D /* Day17 */ = {
+			isa = PBXGroup;
+			children = (
+				34F80D84294D732E00DB9C0D /* Day17.swift */,
+				34F80D86294D738600DB9C0D /* test_input.txt */,
+			);
+			path = Day17;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -397,6 +410,7 @@
 				34F80D4729401FEB00DB9C0D /* Day7.swift in Sources */,
 				3430D26A29399ACC00693452 /* Day2.swift in Sources */,
 				3430D26F293B9ADA00693452 /* Day3.swift in Sources */,
+				34F80D85294D732E00DB9C0D /* Day17.swift in Sources */,
 				345C8ABC293E17620050A100 /* Day5.swift in Sources */,
 				34F80D5429435E6100DB9C0D /* Day9.swift in Sources */,
 				34F80D6F2948A48E00DB9C0D /* Day13.swift in Sources */,
