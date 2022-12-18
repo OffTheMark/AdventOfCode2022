@@ -165,8 +165,6 @@ extension Commands {
                 height = max(height, rock.map(\.y).max()!)
             }
             
-            printChamber(restingRocks: restingRocks)
-            
             return height
         }
         
