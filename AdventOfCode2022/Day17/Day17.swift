@@ -51,17 +51,38 @@ extension Commands {
                 heightOfTowerOf2022Rocks,
                 terminator: "\n\n"
             )
+            
+            printTitle("Part 2", level: .title1)
+            let heightOfTowerOf1000000000000Rocks = part2(moves: moves)
+            print(
+                "How many units tall will the tower of rocks be after 1000000000000 rocks have stopped falling?",
+                heightOfTowerOf1000000000000Rocks
+            )
         }
         
         func part1(moves: [Translation2D]) -> Int {
             simulate(moves: moves, steps: 2022)
         }
         
+        func part2(moves: [Translation2D]) -> Int {
+            simulate(moves: moves, steps: 1_000_000_000_000)
+        }
+        
         func simulate(moves: [Translation2D], steps: Int) -> Int {
+            struct CacheKey: Hashable {
+                let shapeIndex: Int
+                let moveIndex: Int
+            }
+            struct CachePair {
+                let height: Int
+                let step: Int
+            }
+            
             var restingRocks = Set<Point2D>()
             var height = 0
             let numberOfMoves = moves.count
             let numberOfShapes = Self.shapes.count
+            var cache = [CacheKey: CachePair]()
             
             func isCollidingLaterally(_ rock: Rock) -> Bool {
                 rock.contains(where: { point in
@@ -94,6 +115,22 @@ extension Commands {
             }
             for step in 0 ..< steps {
                 let shapeIndex = step % numberOfShapes
+                
+                let key = CacheKey(shapeIndex: shapeIndex, moveIndex: moveIndex)
+                let pair = CachePair(height: height, step: step)
+                
+                // For the cycle detection, I based the code on this solution.
+                // https://www.reddit.com/r/adventofcode/comments/znykq2/comment/j0kdnnj/
+                if let cached = cache[key] {
+                    let (quotient, remainder) = (steps - step).quotientAndRemainder(dividingBy: step - cached.step)
+                    
+                    if remainder == 0 {
+                        return height + (height - cached.height) * quotient
+                    }
+                }
+                else {
+                    cache[key] = pair
+                }
                 
                 let initialTranslation = Translation2D(deltaX: 2, deltaY: height + 4)
                 var rock = Self.shapes[shapeIndex].applying(initialTranslation)
