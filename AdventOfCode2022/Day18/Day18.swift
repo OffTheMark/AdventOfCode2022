@@ -31,6 +31,13 @@ extension Commands {
                 surfaceArea,
                 terminator: "\n\n"
             )
+            
+            printTitle("Part 2", level: .title1)
+            let exteriorSurfaceArea = part2(droplets: droplets)
+            print(
+                "What is the exterior surface area of your scanned lava droplet?",
+                exteriorSurfaceArea
+            )
         }
         
         func part1(droplets: [Point3D]) -> Int {
@@ -43,14 +50,70 @@ extension Commands {
                 .positiveZ,
                 .negativeZ,
             ]
-            let adjacentDropletsByDroplet: [Point3D: Set<Point3D>] = droplets.reduce(into: [:], { result, droplet in
+            let surfaceArea = droplets.reduce(into: 0, { result, droplet in
                 let adjacentDroplets = Set(translations.map({ droplet.applying($0) })).intersection(droplets)
-                result[droplet] = adjacentDroplets
-            })
-            
-            return adjacentDropletsByDroplet.values.reduce(into: 0, { result, adjacentDroplets in
                 result += 6 - adjacentDroplets.count
             })
+            
+            return surfaceArea
+        }
+        
+        func part2(droplets: [Point3D]) -> Int {
+            let coordinateRangesPerPlane: [RangeKey: ClosedRange<Int>] = droplets.reduce(into: [:], { result, droplet in
+                let xRangeKey = droplet.xRangeKey
+                if let rangeOfX = result[xRangeKey] {
+                    let newRange = min(rangeOfX.lowerBound, droplet.x) ... max(rangeOfX.upperBound, droplet.x)
+                    result[xRangeKey] = newRange
+                }
+                else {
+                    result[xRangeKey] = droplet.x ... droplet.x
+                }
+                
+                let yRangeKey = droplet.yRangeKey
+                if let rangeOfY = result[yRangeKey] {
+                    let newRange = min(rangeOfY.lowerBound, droplet.y) ... max(rangeOfY.upperBound, droplet.y)
+                    result[yRangeKey] = newRange
+                }
+                else {
+                    result[yRangeKey] = droplet.y ... droplet.y
+                }
+                
+                let zRangeKey = droplet.zRangeKey
+                if let rangeOfZ = result[zRangeKey] {
+                    let newRange = min(rangeOfZ.lowerBound, droplet.z) ... max(rangeOfZ.upperBound, droplet.z)
+                    result[zRangeKey] = newRange
+                }
+                else {
+                    result[zRangeKey] = droplet.z ... droplet.z
+                }
+            })
+            
+            let exteriorSurfaceArea = droplets.reduce(into: 0, { result, droplet in
+                let rangeOfX = coordinateRangesPerPlane[droplet.xRangeKey]!
+                let rangeOfY = coordinateRangesPerPlane[droplet.yRangeKey]!
+                let rangeOfZ = coordinateRangesPerPlane[droplet.zRangeKey]!
+                
+                if droplet.x == rangeOfX.lowerBound {
+                    result += 1
+                }
+                if droplet.x == rangeOfX.upperBound {
+                    result += 1
+                }
+                if droplet.y == rangeOfY.lowerBound {
+                    result += 1
+                }
+                if droplet.y == rangeOfY.upperBound {
+                    result += 1
+                }
+                if droplet.z == rangeOfZ.lowerBound {
+                    result += 1
+                }
+                if droplet.z == rangeOfZ.upperBound {
+                    result += 1
+                }
+            })
+            
+            return exteriorSurfaceArea
         }
     }
 }
@@ -84,6 +147,18 @@ fileprivate extension Point3D {
         self.y = coordinates[1]
         self.z = coordinates[2]
     }
+    
+    var xRangeKey: RangeKey { .x(y: y, z: z) }
+
+    var yRangeKey: RangeKey { .y(x: x, z: z) }
+    
+    var zRangeKey: RangeKey { .z(x: x, y: y) }
+}
+
+fileprivate enum RangeKey: Hashable {
+    case x(y: Int, z: Int)
+    case y(x: Int, z: Int)
+    case z(x: Int, y: Int)
 }
 
 struct Translation3D {
