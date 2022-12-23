@@ -11,6 +11,7 @@ import AdventOfCodeUtilities
 import Collections
 
 extension Commands {
+    // Solution based on this: https://www.reddit.com/r/adventofcode/comments/zrav4h/comment/j13bk7m/
     struct Day21: DayCommand {
         static var configuration: CommandConfiguration {
             CommandConfiguration(
