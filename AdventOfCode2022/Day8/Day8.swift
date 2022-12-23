@@ -41,7 +41,7 @@ extension Commands {
             )
         }
         
-        func part1(grid: Grid) -> Int {
+        fileprivate func part1(grid: Grid) -> Int {
             var visibleTrees = Set<Point2D>()
             
             for row in grid.rows {
@@ -130,80 +130,80 @@ extension Commands {
             return visibleTrees.count
         }
         
-        func part2(grid: Grid) -> Int {
+        fileprivate func part2(grid: Grid) -> Int {
             let scenicScoresByPoint = grid.scenicScoresByPoint()
             return scenicScoresByPoint.values.max()!
         }
     }
+}
+
+fileprivate struct Grid {
+    var size: Size
+    var heightsByPoint: [Point2D: Int]
     
-    struct Grid {
-        var size: Size
-        var heightsByPoint: [Point2D: Int]
+    var columns: Range<Int> { 0 ..< size.width }
+    
+    var rows: Range<Int> { 0 ..< size.height }
+    
+    init(size: Size, itemsByPoint: [Point2D : Int]) {
+        self.size = size
+        self.heightsByPoint = itemsByPoint
+    }
+    
+    func contains(_ point: Point2D) -> Bool {
+        heightsByPoint[point] != nil
+    }
+    
+    func height(of point: Point2D) -> Int {
+        heightsByPoint[point, default: 0]
+    }
+    
+    init(lines: [String]) {
+        var size = Size(width: 0, height: lines.count)
+        var itemsByPoint = [Point2D: Int]()
         
-        var columns: Range<Int> { 0 ..< size.width }
-        
-        var rows: Range<Int> { 0 ..< size.height }
-        
-        init(size: Size, itemsByPoint: [Point2D : Int]) {
-            self.size = size
-            self.heightsByPoint = itemsByPoint
-        }
-        
-        func contains(_ point: Point2D) -> Bool {
-            heightsByPoint[point] != nil
-        }
-        
-        func height(of point: Point2D) -> Int {
-            heightsByPoint[point, default: 0]
-        }
-        
-        init(lines: [String]) {
-            var size = Size(width: 0, height: lines.count)
-            var itemsByPoint = [Point2D: Int]()
+        for (row, line) in lines.enumerated() {
+            size.width = max(size.width, line.count)
             
-            for (row, line) in lines.enumerated() {
-                size.width = max(size.width, line.count)
-                
-                for (column, item) in line.enumerated() {
-                    guard let item = Int(String(item)) else {
-                        continue
-                    }
-                    let point = Point2D(x: column, y: row)
-                    itemsByPoint[point] = item
+            for (column, item) in line.enumerated() {
+                guard let item = Int(String(item)) else {
+                    continue
                 }
+                let point = Point2D(x: column, y: row)
+                itemsByPoint[point] = item
             }
-            
-            self.size = size
-            self.heightsByPoint = itemsByPoint
         }
         
-        func scenicScoresByPoint() -> [Point2D: Int] {
-            heightsByPoint.keys.reduce(into: [:], { result, point in
-                result[point] = scenicScore(of: point)
-            })
-        }
+        self.size = size
+        self.heightsByPoint = itemsByPoint
+    }
+    
+    func scenicScoresByPoint() -> [Point2D: Int] {
+        heightsByPoint.keys.reduce(into: [:], { result, point in
+            result[point] = scenicScore(of: point)
+        })
+    }
+    
+    func scenicScore(of point: Point2D) -> Int {
+        let directions: [Translation2D] = [.up, .down, .left, .right]
+        var viewingDistanceByDirection = [Translation2D: Int]()
         
-        func scenicScore(of point: Point2D) -> Int {
-            let directions: [Translation2D] = [.up, .down, .left, .right]
-            var viewingDistanceByDirection = [Translation2D: Int]()
+        for direction in directions {
+            var currentPoint = point
+            currentPoint.apply(direction)
+            var viewingDistance = 0
+            var hasHitTreeHigherOrEqual = false
             
-            for direction in directions {
-                var currentPoint = point
+            while contains(currentPoint), !hasHitTreeHigherOrEqual {
+                viewingDistance += 1
+                hasHitTreeHigherOrEqual = height(of: currentPoint) >= height(of: point)
                 currentPoint.apply(direction)
-                var viewingDistance = 0
-                var hasHitTreeHigherOrEqual = false
-                
-                while contains(currentPoint), !hasHitTreeHigherOrEqual {
-                    viewingDistance += 1
-                    hasHitTreeHigherOrEqual = height(of: currentPoint) >= height(of: point)
-                    currentPoint.apply(direction)
-                }
-                
-                viewingDistanceByDirection[direction] = viewingDistance
             }
             
-            return viewingDistanceByDirection.values.reduce(1, *)
+            viewingDistanceByDirection[direction] = viewingDistance
         }
+        
+        return viewingDistanceByDirection.values.reduce(1, *)
     }
 }
 
