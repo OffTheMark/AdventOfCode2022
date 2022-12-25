@@ -106,7 +106,8 @@ extension Commands {
                 }
             }
             
-            floodFill(Point3D(x: rangeOfX.lowerBound, y: rangeOfY.lowerBound, z: rangeOfZ.lowerBound))
+            let startingPoint = Point3D(x: rangeOfX.lowerBound, y: rangeOfY.lowerBound, z: rangeOfZ.lowerBound)
+            floodFill(startingPoint)
             
             let exteriorSafeArea = droplets.reduce(into: 0, { result, droplet in
                 let numberOfSidesReachableBySteam = translations.count(where: { translation in
