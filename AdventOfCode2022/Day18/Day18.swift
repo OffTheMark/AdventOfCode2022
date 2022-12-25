@@ -59,61 +59,64 @@ extension Commands {
         }
         
         func part2(droplets: [Point3D]) -> Int {
-            let coordinateRangesPerPlane: [RangeKey: ClosedRange<Int>] = droplets.reduce(into: [:], { result, droplet in
-                let xRangeKey = droplet.xRangeKey
-                if let rangeOfX = result[xRangeKey] {
-                    let newRange = min(rangeOfX.lowerBound, droplet.x) ... max(rangeOfX.upperBound, droplet.x)
-                    result[xRangeKey] = newRange
-                }
-                else {
-                    result[xRangeKey] = droplet.x ... droplet.x
+            let droplets = Set(droplets)
+            var filledPoints = Set<Point3D>()
+            let translations: [Translation3D] = [
+                .positiveX,
+                .negativeX,
+                .positiveY,
+                .negativeY,
+                .positiveZ,
+                .negativeZ,
+            ]
+            var xCoordinates = Set<Int>()
+            var yCoordinates = Set<Int>()
+            var zCoordinates = Set<Int>()
+            
+            for point in droplets {
+                xCoordinates.insert(point.x)
+                yCoordinates.insert(point.y)
+                zCoordinates.insert(point.z)
+            }
+            let rangeOfX = (xCoordinates.min()! - 1) ... (xCoordinates.max()! + 1)
+            let rangeOfY = (yCoordinates.min()! - 1) ... (yCoordinates.max()! + 1)
+            let rangeOfZ = (zCoordinates.min()! - 1) ... (zCoordinates.max()! + 1)
+            
+            func canBeFilled(_ point: Point3D) -> Bool {
+                guard rangeOfX.contains(point.x), rangeOfY.contains(point.y), rangeOfZ.contains(point.z) else {
+                    return false
                 }
                 
-                let yRangeKey = droplet.yRangeKey
-                if let rangeOfY = result[yRangeKey] {
-                    let newRange = min(rangeOfY.lowerBound, droplet.y) ... max(rangeOfY.upperBound, droplet.y)
-                    result[yRangeKey] = newRange
-                }
-                else {
-                    result[yRangeKey] = droplet.y ... droplet.y
+                if droplets.contains(point) {
+                    return false
                 }
                 
-                let zRangeKey = droplet.zRangeKey
-                if let rangeOfZ = result[zRangeKey] {
-                    let newRange = min(rangeOfZ.lowerBound, droplet.z) ... max(rangeOfZ.upperBound, droplet.z)
-                    result[zRangeKey] = newRange
+                return !filledPoints.contains(point)
+            }
+            
+            func floodFill(_ point: Point3D) {
+                guard canBeFilled(point) else {
+                    return
                 }
-                else {
-                    result[zRangeKey] = droplet.z ... droplet.z
+                
+                filledPoints.insert(point)
+                
+                for translation in translations {
+                    floodFill(point.applying(translation))
                 }
+            }
+            
+            floodFill(Point3D(x: rangeOfX.lowerBound, y: rangeOfY.lowerBound, z: rangeOfZ.lowerBound))
+            
+            let exteriorSafeArea = droplets.reduce(into: 0, { result, droplet in
+                let numberOfSidesReachableBySteam = translations.count(where: { translation in
+                    filledPoints.contains(droplet.applying(translation))
+                })
+                
+                result += numberOfSidesReachableBySteam
             })
             
-            let exteriorSurfaceArea = droplets.reduce(into: 0, { result, droplet in
-                let rangeOfX = coordinateRangesPerPlane[droplet.xRangeKey]!
-                let rangeOfY = coordinateRangesPerPlane[droplet.yRangeKey]!
-                let rangeOfZ = coordinateRangesPerPlane[droplet.zRangeKey]!
-                
-                if droplet.x == rangeOfX.lowerBound {
-                    result += 1
-                }
-                if droplet.x == rangeOfX.upperBound {
-                    result += 1
-                }
-                if droplet.y == rangeOfY.lowerBound {
-                    result += 1
-                }
-                if droplet.y == rangeOfY.upperBound {
-                    result += 1
-                }
-                if droplet.z == rangeOfZ.lowerBound {
-                    result += 1
-                }
-                if droplet.z == rangeOfZ.upperBound {
-                    result += 1
-                }
-            })
-            
-            return exteriorSurfaceArea
+            return exteriorSafeArea
         }
     }
 }
@@ -147,18 +150,6 @@ fileprivate extension Point3D {
         self.y = coordinates[1]
         self.z = coordinates[2]
     }
-    
-    var xRangeKey: RangeKey { .x(y: y, z: z) }
-
-    var yRangeKey: RangeKey { .y(x: x, z: z) }
-    
-    var zRangeKey: RangeKey { .z(x: x, y: y) }
-}
-
-fileprivate enum RangeKey: Hashable {
-    case x(y: Int, z: Int)
-    case y(x: Int, z: Int)
-    case z(x: Int, y: Int)
 }
 
 struct Translation3D {
