@@ -31,12 +31,26 @@ extension Commands {
                 sumOfQualityLevels,
                 terminator: "\n\n"
             )
+            
+            printTitle("Part 2", level: .title1)
+            let product = part2(blueprints: blueprints)
+            print(
+                "Determine the largest number of geodes you could open using each of the first three blueprints. What do you get if you multiply these numbers together?",
+                product
+            )
         }
         
         fileprivate func part1(blueprints: [Blueprint]) -> Int {
             blueprints.reduce(into: 0, { sum, blueprint in
                 let largestNumberOfGeodesProduced = largestNumberOfGeodesProduced(with: blueprint, inMinutes: 24)
                 sum += blueprint.id * largestNumberOfGeodesProduced
+            })
+        }
+        
+        fileprivate func part2(blueprints: [Blueprint]) -> Int {
+            blueprints.prefix(3).reduce(into: 1, { product, blueprint in
+                let largestNumberOfGeodesProduced = largestNumberOfGeodesProduced(with: blueprint, inMinutes: 32)
+                product *= largestNumberOfGeodesProduced
             })
         }
         
