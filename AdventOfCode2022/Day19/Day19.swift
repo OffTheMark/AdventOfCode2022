@@ -184,7 +184,7 @@ extension Commands {
             }
             
             return depthFirstSearch(
-                state: .init(timeRemaining: 24, robots: [.ore: 1], minerals: [:]),
+                state: .init(timeRemaining: numberOfMinutes, robots: [.ore: 1], minerals: [:]),
                 bestSoFar: 0
             )
         }
